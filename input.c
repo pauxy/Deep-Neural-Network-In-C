@@ -2,14 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-void opendata(char* filename){
-    float data[100][9];
+float** opendata(char* filename){
+    float* val = calloc(100*100,sizeof(float));
+    float** data=malloc(100*sizeof(float*));
     FILE* filelist;
     filelist=fopen(filename, "r");
     char line[256];
     int count=0;
     while(fgets(line, sizeof(line), filelist)!=NULL){
-        count=count+1;
+        data[count]=val+(count*100);
         for(int i=0;i<10;i++){
             char* new;
             if (i==0){
@@ -17,14 +18,20 @@ void opendata(char* filename){
             }else{
                 new=strtok(NULL,",");
             }
-            printf("%d  %s ",count,new);
-        //    data[count][i]=atof(new);
+            printf("%d  %f  %d \n",count,atof(new),i);
+            data[count][i]=atof(new);
         }
+        count=count+1;
     }
-    //return data;
+    printf("%f",data[0][0]);
+    return data;
+
 }
 
+
 int main(){
-    opendata("/Users/chuny/Downloads/fertility_Diagnosis_Data_Group1_4-1.txt");
-    //printf("%d",data[0][0]);
+    float** data =opendata("/Users/chuny/Downloads/fertility_Diagnosis_Data_Group1_4-1.txt");
+    typedef float dat[100][10];
+    printf("%f",data[0][0]);
+    return 0;
 }
