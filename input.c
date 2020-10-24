@@ -23,7 +23,7 @@ float** opendata(char* filename){
         }
         count=count+1;
     }
-    printf("%f",data[0][0]);
+    printf("%f",data[0][1]);
     return data;
 
 }
@@ -31,7 +31,11 @@ float** opendata(char* filename){
 
 int main(){
     float** data =opendata("/Users/chuny/Downloads/fertility_Diagnosis_Data_Group1_4-1.txt");
-    typedef float dat[100][10];
-    printf("%f",data[0][0]);
+    float** training = malloc(90*sizeof(float*));
+    float** testing = malloc(10*sizeof(float*));
+    training=data;
+    testing=data+90;
+    printf("%f",training[0][1]);
+    printf("%f",testing[0][1]);
     return 0;
 }
