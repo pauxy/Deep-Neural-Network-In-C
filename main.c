@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,23 +29,16 @@ float** openData(char* filename){
         }
         count = count+1;
     }
-    printf("%f",data[0][1]);
     return data;
 
 }
 
 
-float linearRegression(float** data){
-    int bias = 0;
-    float weights[10];
-    for(int i = 0; i<DATA_COLUMNS; i++){
-        weights[i]=(float)rand()/(float)(RAND_MAX);
-        printf("\n%f",weights[i]);
-    }
+float linearRegression(float** data,int bias, float* weights){
     float total = 0;
-    for(int i = 0; i<DATA_ROWS; i++){
+    for(int i = 0; i<TRAINING_MAX; i++){
         for(int j = 0; j<DATA_COLUMNS; j++){
-            total += weights[j] * data[i][j];
+            total += *(weights+j) * data[i][j];
         }
         total += bias;
     }
@@ -60,12 +54,14 @@ float sigmoid(float sumLR){
 
 float mae(float** data, float activatedVal){
     float total = 0;
-    for (int i=0; i<DATA_ROWS; i++){
+    for (int i=0; i<TRAINING_MAX; i++){
         total+=activatedVal-data[i][DATA_COLUMNS-1];
     }
     return total/DATA_ROWS;
 }
 
+
+//float backProp
 
 int main(){
     float** data =openData("/Users/chuny/Downloads/fertility_Diagnosis_Data_Group1_4-1.txt");
@@ -73,13 +69,22 @@ int main(){
     float** testing = malloc(TESTING_MAX*sizeof(float*));
     training=data;
     testing=data+90;
-    printf("%f",training[0][1]);
-    printf("%f",testing[0][1]);
-    float sumLR=linearRegression(data);
-    printf("\n%f",sumLR);
+    srand(time(NULL));
+    float* weights = malloc(DATA_COLUMNS*sizeof(float));
+    for (int i = 0;i<DATA_COLUMNS; i++){
+        *(weights+i) = (float)rand()/(float)(RAND_MAX);
+        printf("Random Number %i:%f\n",i,*(weights+i));
+    }
+
+    float sumLR=linearRegression(training,0,weights);
     float activatedVal=sigmoid(sumLR);
-    printf("\n%f",activatedVal);
-    float ma=mae(data,activatedVal);
-    printf("\n%f",ma);
+    float maeVal=mae(training,activatedVal);
+
+    printf("Element 1 1 in training: %f\n",training[0][1]);
+    printf("Element 1 1 in testing: %f\n",testing[0][1]);
+    printf("Sum of LR: %f\n",sumLR);
+    printf("Sigmoid value: %f\n",activatedVal);
+    printf("MAE value: %f\n",maeVal);
+    
     return 0;
 }
