@@ -8,9 +8,9 @@ const int TESTING_MAX = 10;
 const int DATA_COLUMNS = 10;
 const int DATA_ROWS=100;
 
-float** openData(char* filename){
-    float* val = calloc(DATA_ROWS*DATA_ROWS,sizeof(float));
-    float** data=malloc(DATA_ROWS*sizeof(float*));
+double** openData(char* filename){
+    double* val = calloc(DATA_ROWS*DATA_ROWS,sizeof(double));
+    double** data=malloc(DATA_ROWS*sizeof(double*));
     FILE* filelist;
     filelist=fopen(filename, "r");
     char line[256];
@@ -34,11 +34,12 @@ float** openData(char* filename){
 }
 
 
-float linearRegression(float** data,int bias, float* weights){
-    float total = 0;
+double linearRegression(double** data, double* biasWeights){
+    double total = 0;
+    double bias = *biasWeights;
     for(int i = 0; i<TRAINING_MAX; i++){
         for(int j = 0; j<DATA_COLUMNS; j++){
-            total += *(weights+j) * data[i][j];
+            total += *(biasWeights+1+j) * data[i][j];
         }
         total += bias;
     }
@@ -47,44 +48,76 @@ float linearRegression(float** data,int bias, float* weights){
 }
 
 
-float sigmoid(float sumLR){
+double sigmoid(double sumLR){
     return 1/(1+exp(-sumLR));
 }
 
 
-float mae(float** data, float activatedVal){
-    float total = 0;
+double meanAbsolutevalue(double** training, double activatedVal){
+    double total = 0;
     for (int i=0; i<TRAINING_MAX; i++){
-        total+=activatedVal-data[i][DATA_COLUMNS-1];
+        total+=activatedVal-training[i][DATA_COLUMNS-1];
     }
-    return total/DATA_ROWS;
+    return (total/DATA_ROWS)<0?-(total/DATA_ROWS):(total/DATA_ROWS);
 }
 
 
-//float backProp
+double* backwardsPropagation(double* biasWeights, double activatedVal, double** training,double sumLR){
+    double* newBiasweights=malloc(DATA_COLUMNS+1*sizeof(double));
+    double ph = (exp(sumLR)/((1+exp(sumLR))*(1+exp(sumLR))));
+    double biasTotal =0;
+    for(int j = 0; j<DATA_COLUMNS; j++){
+        double weightTotal=0;
+        for(int i = 0; i<TRAINING_MAX; i++){
+            double ph1 = activatedVal-training[i][DATA_COLUMNS-1];
+            //printf("%f %f\n",ph1,ph);
+            weightTotal += (ph*ph1*training[i][j]);
+            if(j==0){
+                biasTotal += ph*ph1;
+            }
+        }
+        *(newBiasweights+1+j)=*(biasWeights+1+j)-(weightTotal/TRAINING_MAX);
+    }
+    *newBiasweights=*(biasWeights)-biasTotal/TRAINING_MAX;
+    //printf("diff: %f\n",biasTotal);
+    return newBiasweights;
+}
 
 int main(){
-    float** data =openData("/Users/chuny/Downloads/fertility_Diagnosis_Data_Group1_4-1.txt");
-    float** training = malloc(TRAINING_MAX*sizeof(float*));
-    float** testing = malloc(TESTING_MAX*sizeof(float*));
+    double** data =openData("/Users/chuny/Downloads/fertility_Diagnosis_Data_Group1_4-1.txt");
+    double** training = malloc(TRAINING_MAX*sizeof(double*));
+    double** testing = malloc(TESTING_MAX*sizeof(double*));
     training=data;
     testing=data+90;
     srand(time(NULL));
-    float* weights = malloc(DATA_COLUMNS*sizeof(float));
-    for (int i = 0;i<DATA_COLUMNS; i++){
-        *(weights+i) = (float)rand()/(float)(RAND_MAX);
-        printf("Random Number %i:%f\n",i,*(weights+i));
+    double* biasWeights = malloc(DATA_COLUMNS+1*sizeof(double));
+    *biasWeights=-1.5;
+    for (int i = 1;i<DATA_COLUMNS+1; i++){
+        *(biasWeights+i) = (double)rand()/(double)(RAND_MAX);
+        printf("Random Number %i:%f\n",i,*(biasWeights+i));
     }
-
-    float sumLR=linearRegression(training,0,weights);
-    float activatedVal=sigmoid(sumLR);
-    float maeVal=mae(training,activatedVal);
-
-    printf("Element 1 1 in training: %f\n",training[0][1]);
-    printf("Element 1 1 in testing: %f\n",testing[0][1]);
-    printf("Sum of LR: %f\n",sumLR);
-    printf("Sigmoid value: %f\n",activatedVal);
-    printf("MAE value: %f\n",maeVal);
-    
+    int t=0;
+    double sumLR=0;
+    double activatedVal=0;
+    double maeVal=0;
+    do{
+        if(t>0){
+            biasWeights=backwardsPropagation(biasWeights,activatedVal,training,sumLR);
+        for (int i = 1;i<DATA_COLUMNS+1; i++){
+            //printf("Random Number %i:%f\n",i,*(biasWeights+i));
+            
+        }
+        }
+        sumLR=linearRegression(training,biasWeights);
+        activatedVal=sigmoid(sumLR);
+        maeVal=meanAbsolutevalue(training,activatedVal);
+        t+=1;
+        if(t%10000==0||t<10000){
+        printf("Sum of LR: %f\n",sumLR);
+        printf("Sigmoid value: %0.300f\n",activatedVal);
+        printf("MAE value: %f\n",maeVal);
+        printf("T value: %i\n",t);
+        
+    }}while(maeVal>0.25);
     return 0;
 }
