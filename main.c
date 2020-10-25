@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 #include <stdlib.h>
 const int TRAINING_MAX = 90;
@@ -51,6 +52,21 @@ float linearRegression(float** data){
 
 }
 
+
+float sigmoid(float sumLR){
+    return 1/(1+exp(-sumLR));
+}
+
+
+float mae(float** data, float activatedVal){
+    float total = 0;
+    for (int i=0; i<DATA_ROWS; i++){
+        total+=activatedVal-data[i][DATA_COLUMNS-1];
+    }
+    return total/DATA_ROWS;
+}
+
+
 int main(){
     float** data =openData("/Users/chuny/Downloads/fertility_Diagnosis_Data_Group1_4-1.txt");
     float** training = malloc(TRAINING_MAX*sizeof(float*));
@@ -61,5 +77,9 @@ int main(){
     printf("%f",testing[0][1]);
     float sumLR=linearRegression(data);
     printf("\n%f",sumLR);
+    float activatedVal=sigmoid(sumLR);
+    printf("\n%f",activatedVal);
+    float ma=mae(data,activatedVal);
+    printf("\n%f",ma);
     return 0;
 }
