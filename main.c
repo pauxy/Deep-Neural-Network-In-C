@@ -8,6 +8,7 @@ const int TRAINING_MAX = 90;
 const int TESTING_MAX = 10;
 const int DATA_COLUMNS = 10;
 const int DATA_ROWS = 100;
+const double LEARNING_RATE = 0.05;
 
 double** openData(char*);
 double linearRegression(double**, double*);
@@ -63,7 +64,7 @@ double meanAbsolutevalue(double** training, double activatedVal) {
     for (int i = 0; i < TRAINING_MAX; i++) {
         total += activatedVal - training[i][DATA_COLUMNS - 1];
     }
-    return (total / DATA_ROWS) < 0 ? -(total / DATA_ROWS) : (total / DATA_ROWS);
+    return (total / TRAINING_MAX) < 0 ? -(total / TRAINING_MAX) : (total / TRAINING_MAX);
 }
 
 
@@ -82,9 +83,9 @@ double* backwardsPropagation(double* biasWeights, double activatedVal,
                 biasTotal += ph * ph1;
             }
         }
-        *(newBiasWeights + 1 + j) = *(biasWeights + 1 + j) - (weightTotal / TRAINING_MAX);
+        *(newBiasWeights + 1 + j) = *(biasWeights + 1 + j) - (LEARNING_RATE * (weightTotal / TRAINING_MAX));
     }
-    *newBiasWeights = *(biasWeights) - biasTotal / TRAINING_MAX;
+    *newBiasWeights = *(biasWeights) - (LEARNING_RATE * (biasTotal / TRAINING_MAX));
     /* printf("diff: %f\n", biasTotal); */
     return newBiasWeights;
 }
