@@ -13,7 +13,7 @@ const double LEARNING_RATE = 0.05;
 double** openData(char*);
 double linearRegression(double**, double*);
 double sigmoid(double);
-double meanAbsolutevalue(double**, double);
+double meanAbsoluteValue(double**, double);
 double* backwardsPropagation(double*, double, double**, double);
 
 double** openData(char* filename) {
@@ -55,23 +55,23 @@ double linearRegression(double** data, double* biasWeights) {
 
 
 double sigmoid(double sumLR) {
-    return 1 / (1 + exp(-sumLR));
+    return 1.0 / (1.0 + exp(-sumLR));
 }
 
 
-double meanAbsolutevalue(double** training, double activatedVal) {
+double meanAbsoluteValue(double** training, double activatedVal) {
     double total = 0.0;
     for (int i = 0; i < TRAINING_MAX; i++) {
-        total += activatedVal - training[i][DATA_COLUMNS - 1];
+        total += fabs(activatedVal - training[i][DATA_COLUMNS - 1]);
     }
-    return (total / TRAINING_MAX) < 0 ? -(total / TRAINING_MAX) : (total / TRAINING_MAX);
+    return total / TRAINING_MAX;
 }
 
 
 double* backwardsPropagation(double* biasWeights, double activatedVal,
                              double** training, double sumLR) {
     double* newBiasWeights = (double*)malloc((DATA_COLUMNS + 1) * sizeof(double));
-    double ph = (exp(sumLR) / ((1 + exp(sumLR)) * (1 + exp(sumLR))));
+    double ph = exp(sumLR) / pow(1.0 + exp(sumLR), 2.0);
     double biasTotal = 0.0;
     for (int j = 0; j < DATA_COLUMNS; j++) {
         double weightTotal = 0.0;
@@ -101,7 +101,7 @@ int main() {
     double* biasWeights = (double*)malloc((DATA_COLUMNS + 1) * sizeof(double));
     *biasWeights = -1.5;
     for (int i = 1; i < DATA_COLUMNS + 1; i++) {
-        *(biasWeights + i) = (double)rand() / (double)(RAND_MAX);
+        *(biasWeights + i) = (double)rand() / (double)RAND_MAX;
         printf("Random Number %i:%f\n", i, *(biasWeights + i));
     }
     int t = 0;
@@ -118,7 +118,7 @@ int main() {
         }
         sumLR = linearRegression(training, biasWeights);
         activatedVal = sigmoid(sumLR);
-        maeVal = meanAbsolutevalue(training, activatedVal);
+        maeVal = meanAbsoluteValue(training, activatedVal);
         t += 1;
 
         if (t % 10000 == 0 || t < 10000) {
