@@ -16,7 +16,7 @@ double* linearRegression(double**, double*, int);
 double* sigmoid(double*, int);
 double meanAbsoluteValue(double**, double*, int);
 double* backwardsPropagation(double*, double*, double**, double*);
-double minMeaSquareError(double**, double*, int);
+double minMeanSquareError(double**, double*, int);
 
 double** openData(char* filename) {
     double* val = (double*)malloc(DATA_ROWS * DATA_ROWS * sizeof(double));
@@ -26,67 +26,66 @@ double** openData(char* filename) {
     char line[256];
     int count = 0;
 
-    while (fgets(line, sizeof(line), filelist) != NULL) {
-        data[count] = val + (count * DATA_ROWS);
+    while (fgets(line, sizeof(line), filelist) != NULL) {   //while file still has lines,
+        data[count] = val + (count * DATA_ROWS);            //2d array assign
+        char* new = strtok(line, ",");                      //gets first data between , 
+        for (int i = 0; i < DATA_COLUMNS; i++) {            
+            if (i != 0) new = strtok(NULL, ",");            //gets remaining data between ,
 
-        char* new = strtok(line, ",");
-        for (int i = 0; i < DATA_COLUMNS; i++) {
-            if (i != 0) new = strtok(NULL, ",");
-
-            printf("%d  %f  %d \n", count, atof(new), i);
-            data[count][i] = atof(new);
+            printf("%d  %f  %d \n", count, atof(new), i);   //printf for testing
+            data[count][i] = atof(new);                     //convert string to float and assign
         }
-        count += 1;
+        count += 1;                                         //counter
     }
     return data;
 }
 
 
-double* linearRegression(double** data, double* biasWeights, int val) {
+double* linearRegression(double** data, double* biasWeights, int val){  //2a
     double* lr = (double*)malloc(val * sizeof(double));
-    for (int i = 0; i < val; i++) {
-        *(lr + i) = 0;
-        for (int j = 0; j < ATTR_COLUMNS - 1; j++) {
-            *(lr + i) += (*(biasWeights + 1 + j) * data[i][j])+*biasWeights;
+    for (int rows = 0; rows < val; rows++) {
+        *(lr + rows) = 0;
+        for (int cols = 0; cols < ATTR_COLUMNS - 1; cols++) {
+            *(lr + rows) += (*(biasWeights + 1 + cols) * data[rows][cols])+*biasWeights;
         }
     }
     return lr;
 }
 
 
-double* sigmoid(double* lr, int val) {
+double* sigmoid(double* lr, int val) {                                  //2b
     double* activatedVal = (double*)malloc(val * sizeof(double));
-    for(int i = 0; i<val; i++){
-        *(activatedVal + i) = 1.0 / (1.0 + exp(- *(lr + i)));
+    for(int rows = 0; rows < val; rows++){
+        *(activatedVal + rows) = 1.0 / (1.0 + exp(- *(lr + rows)));
     }
     return activatedVal;
 }
 
 
-double meanAbsoluteValue(double** training, double* activatedVal, int val) {
+double meanAbsoluteValue(double** training, double* activatedVal, int val) {    //2c
     double total = 0.0;
-    for (int i = 0; i < val; i++) {
-        total += fabs( *(activatedVal + i) - training[i][DATA_COLUMNS - 1]);
+    for (int rows = 0; rows < val; rows++) {
+        total += fabs( *(activatedVal + rows) - training[rows][DATA_COLUMNS - 1]);
     }
     return total / val;
 }
 
 
 double* backwardsPropagation(double* biasWeights, double* activatedVal,
-                             double** training, double* lr) {
+                             double** training, double* lr) {                   //2d
     double* newBiasWeights = (double*)malloc((ATTR_COLUMNS + 1) * sizeof(double));
     double biasTotal = 0.0;
-    for (int j = 0; j < ATTR_COLUMNS; j++) {
+    for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
         double weightTotal = 0.0;
-        for (int i = 0; i < TRAINING_MAX; i++) {
-            double ph = exp( *(lr + j)) / pow(1.0 + exp( *(lr + j)), 2.0);
-            double ph1 = *(activatedVal + j) - training[i][DATA_COLUMNS - 1];
-            weightTotal += (ph * ph1 * training[i][j]);
-            if (j == 0) {
+        for (int rows = 0; rows < TRAINING_MAX; rows++) {
+            double ph = exp( *(lr + cols)) / pow(1.0 + exp( *(lr + cols)), 2.0);
+            double ph1 = *(activatedVal + cols) - training[rows][DATA_COLUMNS - 1];
+            weightTotal += (ph * ph1 * training[rows][cols]);
+            if (cols == 0) {
                 biasTotal += ph * ph1;
             }
         }
-        *(newBiasWeights + 1 + j) = *(biasWeights + 1 + j) - (LEARNING_RATE * (weightTotal / TRAINING_MAX));
+        *(newBiasWeights + 1 + cols) = *(biasWeights + 1 + cols) - (LEARNING_RATE * (weightTotal / TRAINING_MAX));
     }
     *newBiasWeights = *(biasWeights) - (LEARNING_RATE * (biasTotal / TRAINING_MAX));
     return newBiasWeights;
@@ -95,8 +94,8 @@ double* backwardsPropagation(double* biasWeights, double* activatedVal,
 
 double minMeanSquareError(double** training, double* activatedVal, int val){
     double total = 0.0;
-    for (int i = 0; i < val; i++) {
-        total += pow(*(activatedVal + i) - training[i][DATA_COLUMNS - 1],2.0);
+    for (int rows = 0; rows < val; rows++) {
+        total += pow(*(activatedVal + rows) - training[rows][DATA_COLUMNS - 1],2.0);
     }
     return total / val ;
 }
@@ -111,11 +110,11 @@ int main() {
     training = data;
     testing = data + 90;
     srand(time(NULL));
-    double* biasWeights = (double*)malloc((ATTR_COLUMNS+1) * sizeof(double));
+    double* biasWeights = (double*)malloc((ATTR_COLUMNS + 1) * sizeof(double));//allocate space for weights +1 bias
     *biasWeights = 0;
-    for (int i = 1; i < ATTR_COLUMNS + 1; i++) {
-        *(biasWeights + i) = (double)rand() / (double)RAND_MAX;
-        printf("Random Number %i:%f\n", i, *(biasWeights + i));
+    for (int cols = 1; cols < ATTR_COLUMNS + 1; cols++) {
+        *(biasWeights + cols) = (double)rand() / (double)RAND_MAX;//randomly assign weights and bias
+        printf("Random Number %i:%f\n", cols, *(biasWeights + cols));
     }
     int t = 0;
     double* lr =  (double*)malloc(TRAINING_MAX * sizeof(double));
