@@ -32,7 +32,7 @@ double** openData(char* filename) {
         for (int i = 0; i < DATA_COLUMNS; i++) {            
             if (i != 0) new = strtok(NULL, ",");            //gets remaining data between ,
 
-            printf("%d  %f  %d \n", count, atof(new), i);   //printf for testing
+            //printf("%d  %f  %d \n", count, atof(new), i);   //printf for testing
             data[count][i] = atof(new);                     //convert string to float and assign
         }
         count += 1;                                         //counter
@@ -45,7 +45,8 @@ double* linearRegression(double** data, double* biasWeights, int val){  //2a
     double* lr = (double*)malloc(val * sizeof(double));
     for (int rows = 0; rows < val; rows++) {
         *(lr + rows) = 0;
-        for (int cols = 0; cols < ATTR_COLUMNS - 1; cols++) {
+        for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
+            //printf("%f\n",*(lr + rows));
             *(lr + rows) += (*(biasWeights + 1 + cols) * data[rows][cols])+*biasWeights;
         }
     }
@@ -99,7 +100,29 @@ double minMeanSquareError(double** training, double* activatedVal, int val){
     }
     return total / val ;
 }
+int* confusionMatrix(double* res, double** data,int val){
+    double* confusion = (double*)malloc(val*sizeof(double));
+    for (int i=0;i<val;i++){
+        int origin=data[i][DATA_COLUMNS-1];
+        int result=res[i];
+        int con=1;//
+            if (origin==result){
+                if (origin==0){
+                    con=0;//true neg
+                }
+                //1=true positive
+            }else{
+                con=3;//false positive
+                if (origin==0){
+                    con=2;//false neg
+                }
 
+            }
+            printf("%i",con);
+            *confusion=con;
+            confusion++;
+    }
+}
 
 int main() {
     FILE* graph = fopen("graph.temp","w");
@@ -127,23 +150,31 @@ int main() {
         maeVal = meanAbsoluteValue(training, activatedVal,TRAINING_MAX);
         t += 1;
 
-        if (t % 10 == 0) {
+        if (t % 10 == 0) {                              //testing
             printf("MAE value: %f\n",maeVal);
             printf("T value: %i\n",t);
             printf("sigmoid: %f\n",*(activatedVal));
         }
         fprintf(graph, "%i %lf \n", t, maeVal);
-        biasWeights = backwardsPropagation(biasWeights, activatedVal, training, lr);
+        if(maeVal>0.25){
+            biasWeights = backwardsPropagation(biasWeights, activatedVal, training, lr);
+        }
     } while(maeVal>0.25);
-    fprintf(gnuplotPipe, "plot 'graph.temp' with lines\n");
+//    fprintf(gnuplotPipe, "plot 'graph.temp' with lines\n");
     printf("MMSE Training: %f\n",minMeanSquareError(training,activatedVal,TRAINING_MAX));
     printf("MMSE Testing: %f\n",minMeanSquareError(testing,activatedVal,TESTING_MAX));
     //TESTING
-    double* testLR =  (double*)malloc(ATTR_COLUMNS * sizeof(double));
+    double* testLR =  (double*)malloc(TESTING_MAX* sizeof(double));
     testLR=linearRegression(testing,biasWeights,TESTING_MAX);
     testLR=sigmoid(testLR,TESTING_MAX);
-    for(int i=0;i<TESTING_MAX;i++){
-        printf("%f\n",*(testLR+i));
+    for(int i=0;i<TRAINING_MAX;i++){
+        //printf("test: %f\n",*(testLR+i));
+        if(*(activatedVal+i)>0.25){
+            *(activatedVal+i)=1;//printf("1                  %f\n",training[i][DATA_COLUMNS - 1]);
+        }else{
+            *(activatedVal+i)=0;
     }
+    }
+    confusionMatrix(activatedVal,testing,10);
     return 0;
 }
