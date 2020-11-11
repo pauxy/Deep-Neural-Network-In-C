@@ -100,28 +100,28 @@ double minMeanSquareError(double** training, double* activatedVal, int val){
     }
     return total / val ;
 }
-int* confusionMatrix(double* res, double** data,int val){
-    double* confusion = (double*)malloc(val*sizeof(double));
+char** confusionMatrix(double* res, double** data,int val){
+    char** confusion = (char**)malloc(val*2*sizeof(char*));
     for (int i=0;i<val;i++){
         int origin=data[i][DATA_COLUMNS-1];
         int result=res[i];
-        int con=1;//
+        char* con="PP";//
             if (origin==result){
                 if (origin==0){
-                    con=0;//true neg
+                    con="FF";//true neg
                 }
                 //1=true positive
             }else{
-                con=3;//false positive
+                con="PF";//false positive
                 if (origin==0){
-                    con=2;//false neg
+                    con="FP";//false neg
                 }
 
             }
-            printf("%i",con);
-            *confusion=con;
-            confusion++;
+            //printf("%d  %d  %i\n",origin,result,con);
+            *(confusion+i)=con;
     }
+    return confusion;
 }
 
 int main() {
@@ -167,14 +167,20 @@ int main() {
     double* testLR =  (double*)malloc(TESTING_MAX* sizeof(double));
     testLR=linearRegression(testing,biasWeights,TESTING_MAX);
     testLR=sigmoid(testLR,TESTING_MAX);
-    for(int i=0;i<TRAINING_MAX;i++){
+    for(int i=0;i<TESTING_MAX;i++){
         //printf("test: %f\n",*(testLR+i));
-        if(*(activatedVal+i)>0.25){
-            *(activatedVal+i)=1;//printf("1                  %f\n",training[i][DATA_COLUMNS - 1]);
+        if(*(testLR+i)>0.25){
+            *(testLR+i)=1;//printf("1                  %f\n",training[i][DATA_COLUMNS - 1]);
         }else{
-            *(activatedVal+i)=0;
+            *(testLR+i)=0;
     }
     }
-    confusionMatrix(activatedVal,testing,10);
+    char** cm=(char**)malloc(2*10*sizeof(char));
+    cm=confusionMatrix(testLR,testing,10);
+        printf("origin     predict         res\n");
+    for(int i=0;i<TESTING_MAX;i++){
+
+        printf("%f     %f      %s\n",testing[0+i][DATA_COLUMNS-1],testLR[0+i],cm[0+i]);
+    }
     return 0;
 }
