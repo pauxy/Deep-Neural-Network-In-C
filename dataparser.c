@@ -28,9 +28,12 @@ const int ATTR_COLUMNS = DATA_COLUMNS - 1; /* columns exclusive of results */
  *
  * Return: 2D array of attributes
  */
-
 double** openData(char* filename) {
     FILE* filelist = fopen(filename, "r");
+    if (filelist == NULL) {
+        puts("File could not be opened");
+        exit(1);
+    }
 
     double* row = (double*)malloc(DATA_ROWS * DATA_ROWS * sizeof(double));
     double** data = (double**)malloc(DATA_ROWS * sizeof(double*));
@@ -45,7 +48,7 @@ double** openData(char* filename) {
             if (col != 0) token = strtok(NULL, ",");        /* gets remaining data between ',' */
 
             // printf("%d  %f  %d \n", count, atof(token), i);   /* printf for testing */
-            data[count][col] = atof(token);                     /* convert string to float and assign */
+            data[count][col] = atof(token);                 /* convert string to float and assign */
         }
         count++;                                            /* counter */
     }
