@@ -15,23 +15,37 @@ const int DATA_ROWS = 100;
 const double LEARNING_RATE = 0.05;
 const int ATTR_COLUMNS = DATA_COLUMNS - 1; /* columns exclusive of results */
 
+/**
+ * {openData}(): Opens dataset file and convert into 2D array
+ *
+ * @filename: Name of file dataset is located
+ * @row:      Row in dataset
+ * @data      Column/Attribute in dataset
+ * @line      Buffer to read each line in file
+ * @count     Counter for inserting attribute value into correct element in array
+ * @token     Placeholder for using ',' as delimeter
+ * @col       Column current loop is on
+ *
+ * Return: 2D array of attributes
+ */
+
 double** openData(char* filename) {
     FILE* filelist = fopen(filename, "r");
 
-    double* val = (double*)malloc(DATA_ROWS * DATA_ROWS * sizeof(double));
+    double* row = (double*)malloc(DATA_ROWS * DATA_ROWS * sizeof(double));
     double** data = (double**)malloc(DATA_ROWS * sizeof(double*));
 
     char line[256];
     int count = 0;
 
     while (fgets(line, sizeof(line), filelist) != NULL) {   /* while file still has lines */
-        data[count] = val + (count * DATA_ROWS);            /* 2d array assign */
-        char* new = strtok(line, ",");                      /* gets first data between ',' */
+        data[count] = row + (count * DATA_ROWS);            /* 2d array assign */
+        char* token = strtok(line, ",");                    /* gets first data between ',' */
         for (int col = 0; col < DATA_COLUMNS; col++) {
-            if (col != 0) new = strtok(NULL, ",");            /* gets remaining data between ',' */
+            if (col != 0) token = strtok(NULL, ",");        /* gets remaining data between ',' */
 
-            // printf("%d  %f  %d \n", count, atof(new), i);   /* printf for testing */
-            data[count][col] = atof(new);                     /* convert string to float and assign */
+            // printf("%d  %f  %d \n", count, atof(token), i);   /* printf for testing */
+            data[count][col] = atof(token);                     /* convert string to float and assign */
         }
         count++;                                            /* counter */
     }
