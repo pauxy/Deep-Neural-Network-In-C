@@ -1,67 +1,19 @@
-#include <stdio.h>
-#include <time.h>
+/* main.c -- Home of the main function
+ * Author: Lim Chun Yu
+ */
+
 #include <math.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-const int TRAINING_MAX = 90;
-const int TESTING_MAX = 10;
-const int DATA_COLUMNS = 10;
-const int DATA_ROWS = 100;
-const double LEARNING_RATE = 0.05;
-const int ATTR_COLUMNS = DATA_COLUMNS - 1; //cols exclusive of results
+#include "dataparser.h"
+#include "forwardprop.h"
 
-double** openData(char*);
-double* linearRegression(double**, double*, int);
-double* sigmoid(double*, int);
 double meanAbsoluteValue(double**, double*, int);
 double* backwardsPropagation(double*, double*, double**, double*);
 double minMeanSquareError(double**, double*, int);
-
-double** openData(char* filename) {
-    double* val = (double*)malloc(DATA_ROWS * DATA_ROWS * sizeof(double));
-    double** data = (double**)malloc(DATA_ROWS * sizeof(double*));
-    FILE* filelist;
-    filelist = fopen(filename, "r");
-    char line[256];
-    int count = 0;
-
-    while (fgets(line, sizeof(line), filelist) != NULL) {   //while file still has lines,
-        data[count] = val + (count * DATA_ROWS);            //2d array assign
-        char* new = strtok(line, ",");                      //gets first data between , 
-        for (int i = 0; i < DATA_COLUMNS; i++) {            
-            if (i != 0) new = strtok(NULL, ",");            //gets remaining data between ,
-
-            //printf("%d  %f  %d \n", count, atof(new), i);   //printf for testing
-            data[count][i] = atof(new);                     //convert string to float and assign
-        }
-        count += 1;                                         //counter
-    }
-    return data;
-}
-
-
-double* linearRegression(double** data, double* biasWeights, int val){  //2a
-    double* lr = (double*)malloc(val * sizeof(double));
-    for (int rows = 0; rows < val; rows++) {
-        *(lr + rows) = 0;
-        for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
-            //printf("%f\n",*(lr + rows));
-            *(lr + rows) += (*(biasWeights + 1 + cols) * data[rows][cols])+*biasWeights;
-        }
-    }
-    return lr;
-}
-
-
-double* sigmoid(double* lr, int val) {                                  //2b
-    double* activatedVal = (double*)malloc(val * sizeof(double));
-    for(int rows = 0; rows < val; rows++){
-        *(activatedVal + rows) = 1.0 / (1.0 + exp(- *(lr + rows)));
-    }
-    return activatedVal;
-}
-
 
 double meanAbsoluteValue(double** training, double* activatedVal, int val) {    //2c
     double total = 0.0;
