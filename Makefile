@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS = -fsanitize=signed-integer-overflow -fsanitize=undefined -O2 -std=c18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable
-DEPS = dataparser.h forwardprop.h
-OBJ = main.o dataparser.o forwardprop.o
+DEPS = dataparser.h forwardprop.h backprop.h loss.h
+OBJ = main.o dataparser.o forwardprop.o backprop.o loss.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

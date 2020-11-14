@@ -10,75 +10,12 @@
 
 #include "dataparser.h"
 #include "forwardprop.h"
-
-double meanAbsoluteValue(double**, double*, int);
-double* backwardsPropagation(double*, double*, double**, double*);
-double minMeanSquareError(double**, double*, int);
-
-double meanAbsoluteValue(double** training, double* activatedVal, int val) {    //2c
-    double total = 0.0;
-    for (int rows = 0; rows < val; rows++) {
-        total += fabs( *(activatedVal + rows) - training[rows][DATA_COLUMNS - 1]);
-    }
-    return total / val;
-}
-
-
-double* backwardsPropagation(double* biasWeights, double* activatedVal,
-                             double** training, double* lr) {                   //2d
-    double* newBiasWeights = (double*)malloc((ATTR_COLUMNS + 1) * sizeof(double));
-    double biasTotal = 0.0;
-    for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
-        double weightTotal = 0.0;
-        for (int rows = 0; rows < TRAINING_MAX; rows++) {
-            double ph = exp( *(lr + cols)) / pow(1.0 + exp( *(lr + cols)), 2.0);
-            double ph1 = *(activatedVal + cols) - training[rows][DATA_COLUMNS - 1];
-            weightTotal += (ph * ph1 * training[rows][cols]);
-            if (cols == 0) {
-                biasTotal += ph * ph1;
-            }
-        }
-        *(newBiasWeights + 1 + cols) = *(biasWeights + 1 + cols) - (LEARNING_RATE * (weightTotal / TRAINING_MAX));
-    }
-    *newBiasWeights = *(biasWeights) - (LEARNING_RATE * (biasTotal / TRAINING_MAX));
-    return newBiasWeights;
-}
-
-
-double minMeanSquareError(double** training, double* activatedVal, int val){
-    double total = 0.0;
-    for (int rows = 0; rows < val; rows++) {
-        total += pow(*(activatedVal + rows) - training[rows][DATA_COLUMNS - 1],2.0);
-    }
-    return total / val ;
-}
-char** confusionMatrix(double* res, double** data,int val){
-    char** confusion = (char**)malloc(val*2*sizeof(char*));
-    for (int i=0;i<val;i++){
-        int origin=data[i][DATA_COLUMNS-1];
-        int result=res[i];
-        char* con="PP";//
-            if (origin==result){
-                if (origin==0){
-                    con="FF";//true neg
-                }
-                //1=true positive
-            }else{
-                con="PF";//false positive
-                if (origin==0){
-                    con="FP";//false neg
-                }
-
-            }
-            //printf("%d  %d  %i\n",origin,result,con);
-            *(confusion+i)=con;
-    }
-    return confusion;
-}
+#include "backprop.h"
+#include "loss.h"
 
 int main() {
     FILE* graph = fopen("graph.temp","w");
-    FILE * gnuplotPipe = popen ("gnuplot -persistent", "w");
+    FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
     double** data = openData("dataset/fertility_Diagnosis_Data_Group1_4-1.txt");
     double** training = (double**)malloc(TRAINING_MAX * sizeof(double*));
     double** testing = (double**)malloc(TESTING_MAX * sizeof(double*));
