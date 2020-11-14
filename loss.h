@@ -1,3 +1,7 @@
+/* loss.h
+ * Author: Lim Chun Yu
+ */
+
 #ifndef LOSS_H
 #define LOSS_H
 

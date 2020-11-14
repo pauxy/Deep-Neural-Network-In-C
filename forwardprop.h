@@ -1,3 +1,7 @@
+/* forwardprop.h
+ * Author: Lim Chun Yu
+ */
+
 #ifndef FORWARDPROP_H
 #define FORWARDPROP_H
 

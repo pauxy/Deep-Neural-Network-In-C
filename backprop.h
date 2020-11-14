@@ -1,3 +1,7 @@
+/* backprop.h
+ * Author: Lim Chun Yu
+ */
+
 #ifndef BACKPROP_H
 #define BACKPROP_H
 

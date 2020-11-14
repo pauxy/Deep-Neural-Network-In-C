@@ -1,3 +1,7 @@
+/* dataparser.h
+ * Author: Lim Chun Yu
+ */
+
 #ifndef DATAPARSER_H
 #define DATAPARSER_H
 
