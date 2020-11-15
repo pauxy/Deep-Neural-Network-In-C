@@ -20,13 +20,13 @@
  * Calculates Minimum Mean Square Error using formula
  * \frac{1}{I} \sum_{i=1}^{I} (\hat{y_{l}}^{t} - d_{i})^2
  *
- * Return:
+ * Return: Average of the sum of squares of errors
  */
 double minMeanSquareError(double** data, double* activatedVal, int val) {
     double total = 0.0;
     for (int rows = 0; rows < val; rows++) {
         total += pow(*(activatedVal + rows) -
-                data[rows][DATA_COLUMNS - 1],2.0); /* TODO:description */
+                data[rows][DATA_COLUMNS - 1], 2.0); /* TODO:description */
     }
     return total / val ;
 }
@@ -48,9 +48,9 @@ double minMeanSquareError(double** data, double* activatedVal, int val) {
  *
  * Return: Array of strings for confusion matrix
  */
-char** confusionMatrix(double** data, double* res, int val){
+char** confusionMatrix(double** data, double* res, int val) {
     char** confusion = (char**)malloc(val * 2 * sizeof(char*));
-    for (int i = 0; i < val; i++){
+    for (int i = 0; i < val; i++) {
         int origin = data[i][DATA_COLUMNS - 1];
         int result = res[i];
         char* con = "TP";
