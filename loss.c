@@ -35,8 +35,8 @@ double minMeanSquareError(double** data, double* activatedVal, int val) {
 /**
  * confusionMatrix(): Evaluates prediction to true label
  *
- * @res:
  * @data:             Attributes from dataset
+ * @res:
  * @val:              Size of data in rows
  *
  * Part 2e
