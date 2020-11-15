@@ -53,7 +53,7 @@ int main() {
 
     int t = 0;
 
-    Node_h* layer1node1;
+    Node_h* layer1node1 = (Node_h*)malloc(sizeof(Node_h));
     layer1node1->lr = (double*)malloc(TRAINING_MAX * sizeof(double));
     layer1node1->activatedVal = (double*)malloc(TRAINING_MAX * sizeof(double));
     layer1node1->maeVal = 0.0;
