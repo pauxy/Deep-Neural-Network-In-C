@@ -14,7 +14,7 @@
  * @data:              2D array of dataset where each columns are attributes
  * @biasWeights:       Array of bias and weights where the firest element is the bias and the
  *                     remaining elements are weights
- * @val:               Size of training data in rows
+ * @val:               Size of data in rows
  * @lr:                Array of the calculated sum of weights, inputs and biases using formula
  *
  * Part 2a
@@ -30,8 +30,8 @@ double* linearRegression(double** data, double* biasWeights, int val){
         *(lr + rows) = 0;                                /* TODO:description */
         for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
             // printf("%f\n", *(lr + rows));
-            *(lr + rows) += (*(biasWeights + 1 + cols) * /* TODO:description */
-                    data[rows][cols]) + *biasWeights;
+            *(lr + rows) += (*(biasWeights + 1 + cols) *
+                    data[rows][cols]) + *biasWeights; /* TODO:description */
         }
     }
     return lr;
@@ -42,7 +42,7 @@ double* linearRegression(double** data, double* biasWeights, int val){
  * sigmoid():     Squashes input into double between 0-1
  *
  * @lr:           Array of calculated sum from linearRegression()
- * @val:          Size of training data in rows
+ * @val:          Size of data in rows
  *
  * @activatedVal: Array of lr after running sigmoid function
  *

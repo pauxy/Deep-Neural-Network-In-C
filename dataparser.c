@@ -52,7 +52,7 @@ double** openData(char* filename) {
             // printf("%d  %f  %d \n", count, atof(token), i); /* printf for testing */
             data[count][col] = atof(token);                 /* convert string to float and assign */
         }
-        count++;                                            /* counter */
+        count++;
     }
     return data;
 }

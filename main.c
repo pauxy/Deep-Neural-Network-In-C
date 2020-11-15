@@ -32,8 +32,8 @@ int main() {
     double maeVal = 0.0;
 
     do {
-        lr = linearRegression(training, biasWeights,TRAINING_MAX);
-        activatedVal = sigmoid(lr,TRAINING_MAX);
+        lr = linearRegression(training, biasWeights, TRAINING_MAX);
+        activatedVal = sigmoid(lr, TRAINING_MAX);
         maeVal = meanAbsoluteValue(training, activatedVal,TRAINING_MAX);
         t += 1;
 

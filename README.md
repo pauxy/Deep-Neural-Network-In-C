@@ -2,7 +2,7 @@
 
 ## Course Name Programming Methodology (PM)
 
-**Deadline Time: 23:59 Date:** (^29) **Nov 2020**
+**Deadline Time: 23:59 Date:** 29th **Nov 2020**
 
 Submit via SIT\_Xsite a Zip or compressed tar file containing your:
 - Source code directory (UoG-PM.tgz or UoG-PM.zip)
