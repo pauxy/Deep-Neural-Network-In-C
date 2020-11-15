@@ -1,4 +1,4 @@
-/* loss.c -- 
+/* loss.c -- Calculates MMSE and confusion matrix
  * Author: Lim Chun Yu
  */
 
@@ -8,48 +8,60 @@
 #include "dataparser.h"
 
 /**
- * minMeanSquareError():
+ * minMeanSquareError(): Calculates the minimum average of the squares of errors
  *
- * @training:
- * @activatedVal:
- * @val:
+ * @data:                Attributes from dataset
+ * @activatedVal:        Activated values passed from the sigmoid function
+ * @val:                 Size of data in rows
  *
- * @total:
+ * @total:               Sum of the squares of errors
+ *
+ * Part 2e
+ * Calculates Minimum Mean Square Error using formula
+ * \frac{1}{I} \sum_{i=1}^{I} (\hat{y_{l}}^{t} - d_{i})^2
  *
  * Return:
  */
-double minMeanSquareError(double** training, double* activatedVal, int val) {
+double minMeanSquareError(double** data, double* activatedVal, int val) {
     double total = 0.0;
     for (int rows = 0; rows < val; rows++) {
-        total += pow(*(activatedVal + rows) - training[rows][DATA_COLUMNS - 1],2.0);
+        total += pow(*(activatedVal + rows) -
+                data[rows][DATA_COLUMNS - 1],2.0); /* TODO:description */
     }
     return total / val ;
 }
 
 
 /**
- * confusionMatrix():
+ * confusionMatrix(): Evaluates prediction to true label
  *
  * @res:
- * @data:
- * @val:
+ * @data:             Attributes from dataset
+ * @val:              Size of data in rows
  *
- * Return:
+ * Part 2e
+ * Determines the four classes
+ * - True Positive
+ * - True Negative
+ * - False Positive
+ * - False Negative
+ *
+ * Return: Array of strings for confusion matrix
  */
-char** confusionMatrix(double* res, double** data, int val){
+char** confusionMatrix(double** data, double* res, int val){
     char** confusion = (char**)malloc(val * 2 * sizeof(char*));
     for (int i = 0; i < val; i++){
         int origin = data[i][DATA_COLUMNS - 1];
         int result = res[i];
-        char* con = "PP";
+        char* con = "TP";
         if (origin == result) {
-            if (origin == 0) con = "FF"; // true neg
+            if (origin == 0) con = "TN"; // true neg
             //1=true positive
         } else {
-            con = "PF"; // false positive
-            if (origin == 0) con = "FP"; // false neg
+            con = "FP"; // false positive
+            if (origin == 0) con = "FN"; // false neg
         }
-        //printf("%d  %d  %i\n",origin,result,con);
+        // printf("%d  %d  %i\n",origin,result,con);
         *(confusion + i) = con;
     }
     return confusion;

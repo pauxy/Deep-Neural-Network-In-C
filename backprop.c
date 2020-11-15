@@ -55,8 +55,8 @@ double meanAbsoluteValue(double** data, double* activatedVal, int val) {
  *
  * Return: double* newBiasWeights
  */
-double* backwardsPropagation(double* biasWeights, double* activatedVal,
-                             double** data, double* lr) {
+double* backwardsPropagation(double** data, double* biasWeights,
+                             double* activatedVal, double* lr) {
     double* newBiasWeights = (double*)malloc((ATTR_COLUMNS + 1) * sizeof(double));
     double biasTotal = 0.0;
     for (int cols = 0; cols < ATTR_COLUMNS; cols++) {

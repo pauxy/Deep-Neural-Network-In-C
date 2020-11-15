@@ -44,7 +44,7 @@ int main() {
         }
         fprintf(graph, "%i %lf \n", t, maeVal);
         if(maeVal>0.25){
-            biasWeights = backwardsPropagation(biasWeights, activatedVal, training, lr);
+            biasWeights = backwardsPropagation(training, biasWeights, activatedVal, lr);
         }
     } while(maeVal>0.25);
 //    fprintf(gnuplotPipe, "plot 'graph.temp' with lines\n");
@@ -62,8 +62,8 @@ int main() {
             *(testLR+i)=0;
     }
     }
-    char** cm=(char**)malloc(2*10*sizeof(char));
-    cm=confusionMatrix(testLR,testing,10);
+    char** cm=(char**)malloc(2*10*sizeof(char*));
+    cm=confusionMatrix(testing,testLR,10);
         printf("origin     predict         res\n");
     for(int i=0;i<TESTING_MAX;i++){
 
