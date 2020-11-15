@@ -16,21 +16,23 @@ const double LEARNING_RATE = 0.05;
 const int ATTR_COLUMNS = DATA_COLUMNS - 1; /* columns exclusive of results */
 
 /**
- * {openData}(): Opens dataset file and convert into 2D array
+ * openData(): Opens dataset file and convert into 2D array
  *
- * @filename: Name of file dataset is located
- * @row:      Row in dataset
- * @data      Column/Attribute in dataset
- * @line      Buffer to read each line in file
- * @count     Counter for inserting attribute value into correct element in array
- * @token     Placeholder for using ',' as delimeter
- * @col       Column current loop is on
+ * @filename:  Name of file dataset is located
  *
- * Return: 2D array of attributes
+ * @row:       Row in dataset
+ * @data       Column/Attribute in dataset
+ * @line       Buffer to read each line in file
+ * @count      Counter for inserting attribute value into correct element in array
+ * @token      Placeholder for using ',' as delimeter
+ * @col        Column current loop is on
+ *
+ * Return:     2D array of attributes
  */
 double** openData(char* filename) {
     FILE* filelist = fopen(filename, "r");
-    if (filelist == NULL) {
+    /* Authored by: Germaine Wong */
+    if (filelist == NULL) { /* check if file exist */
         puts("File could not be opened");
         exit(1);
     }
@@ -47,7 +49,7 @@ double** openData(char* filename) {
         for (int col = 0; col < DATA_COLUMNS; col++) {
             if (col != 0) token = strtok(NULL, ",");        /* gets remaining data between ',' */
 
-            // printf("%d  %f  %d \n", count, atof(token), i);   /* printf for testing */
+            // printf("%d  %f  %d \n", count, atof(token), i); /* printf for testing */
             data[count][col] = atof(token);                 /* convert string to float and assign */
         }
         count++;                                            /* counter */
