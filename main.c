@@ -65,12 +65,6 @@ int main() {
                                                 TRAINING_MAX);
         t++;
 
-        /* if (t % 10 == 0) { */
-            /* printf("MAE value: %f\n",maeVal); */
-            /* printf("T value: %i\n",t); */
-            /* printf("sigmoid: %f\n",*(activatedVal)); */
-        /* } */
-
         fprintf(graph, "%i %lf \n", t, layer1node1->maeVal);
         if (layer1node1->maeVal > 0.25) {
             biasWeights = backwardsPropagation(trainTest.training, biasWeights,
