@@ -26,29 +26,34 @@
 double meanAbsoluteValue(double** data, double* activatedVal, int val) {
     double total = 0.0;
     for (int rows = 0; rows < val; rows++) {
-        total += fabs( *(activatedVal + rows) - /* TODO:description */
-                data[rows][DATA_COLUMNS - 1]);
+        total += fabs( *(activatedVal + rows) -
+                data[rows][DATA_COLUMNS - 1]); /* TODO:description */
     }
     return total / val;
 }
 
 
 /**
- * backwardsPropagation():
+ * backwardsPropagation(): Updates weights and biases for each iteration
  *
- * @biasWeights:
- * @activatedVal:
- * @data:
- * @lr:
+ * @biasWeights:      Array of bias and weights where bias is the first element and the rest are weights
+ * @activatedVal:     Activated values passed from the sigmoid function
+ * @data:             Attributes from dataset
+ * @lr:               Array of the calculated sum of weights, inputs and biases using formula
  *
- * @newBiasWeights:
- * @biasTotal:
- * @weightTotal:
- * @weightBiasUpdate:
+ * @newBiasWeights:   Updated values of @biasWeights
+ * @biasTotal:        Diffrentiation of the cost function with respect to the biases
+ * @weightTotal:      Diffrentiation of the cost function with respect to the weights
+ * @weightBiasUpdate: Amount required to adjust both bias and weights using formula
  *
  * Part 2d
+ * Backward propogation of both weights and bias for each iteration using formulas using the current
+ * weights subtracted by the gradient of the cost function with respect to the weights multiplied by
+ * the learning rate
+ * \overrightarrow{\textbf{w}}^{t} - \eta \triangledown_{w}E^{t}
+ * b_{i}^{t} - \eta \triangledown_{b}E^{t}
  *
- * Return:
+ * Return: double* newBiasWeights
  */
 double* backwardsPropagation(double* biasWeights, double* activatedVal,
                              double** data, double* lr) {
@@ -58,13 +63,14 @@ double* backwardsPropagation(double* biasWeights, double* activatedVal,
         double weightTotal = 0.0;
         for (int rows = 0; rows < TRAINING_MAX; rows++) {
             double weightBiasUpdate = exp( *(lr + cols)) / pow(1.0 + exp( *(lr + cols)), 2.0) *
-                (*(activatedVal + cols) - data[rows][DATA_COLUMNS - 1]);
-            weightTotal += (weightBiasUpdate * data[rows][cols]);
+                (*(activatedVal + cols) - data[rows][DATA_COLUMNS - 1]); /* TODO:description */
+            weightTotal += (weightBiasUpdate * data[rows][cols]); /* TODO:description */
 
-            if (cols == 0) biasTotal += weightBiasUpdate;
+            if (cols == 0) biasTotal += weightBiasUpdate; /* TODO:description */
         }
-        *(newBiasWeights + 1 + cols) = *(biasWeights + 1 + cols) - (LEARNING_RATE * (weightTotal / TRAINING_MAX));
+        *(newBiasWeights + 1 + cols) = *(biasWeights + 1 + cols) -
+            (LEARNING_RATE * (weightTotal / TRAINING_MAX)); /* TODO:description */
     }
-    *newBiasWeights = *(biasWeights) - (LEARNING_RATE * (biasTotal / TRAINING_MAX));
+    *newBiasWeights = *(biasWeights) - (LEARNING_RATE * (biasTotal / TRAINING_MAX)); /* TODO:description */
     return newBiasWeights;
 }
