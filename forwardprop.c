@@ -27,11 +27,11 @@
 double* linearRegression(double** data, double* biasWeights, int val){
     double* lr = (double*)malloc(val * sizeof(double));
     for (int rows = 0; rows < val; rows++) {
-        *(lr + rows) = 0;                                /* TODO:description */
+        *(lr + rows) = 0;                                /* initialise to zero the var for the addition of columns in data */
         for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
             // printf("%f\n", *(lr + rows));
             *(lr + rows) += (*(biasWeights + 1 + cols) *
-                    data[rows][cols]) + *biasWeights; /* TODO:description */
+                    data[rows][cols]) + *biasWeights; /* adds to counter and appends to array using lr fomula */
         }
     }
     return lr;
@@ -56,7 +56,7 @@ double* linearRegression(double** data, double* biasWeights, int val){
 double* sigmoid(double* lr, int val) {
     double* activatedVal = (double*)malloc(val * sizeof(double));
     for(int rows = 0; rows < val; rows++){
-        *(activatedVal + rows) = 1.0 / (1.0 + exp(- *(lr + rows))); /* TODO:description */
+        *(activatedVal + rows) = 1.0 / (1.0 + exp(- *(lr + rows))); /* sigmoid formula as provided */
     }
     return activatedVal;
 }
