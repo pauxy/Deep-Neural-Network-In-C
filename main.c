@@ -28,6 +28,20 @@ Dataset_t splitData(double** data) {
 
     return split;
 }
+double* prediction(double* biasWeights,double** testing){
+    double* test=(double*)malloc(TESTING_MAX * sizeof(int));
+    test = linearRegression(testing, biasWeights, TESTING_MAX);
+    test = sigmoid(test, TESTING_MAX);
+    for(int i = 0; i < TESTING_MAX; i++){
+        printf("%f\n",*(test+i));
+        if ( *(test + i) > 0.5) {
+            *(test + i) = 1;
+        }else{
+            *(test + i) = 0;
+        }
+    }
+    return test;
+}
 
 
 int main() {
@@ -68,7 +82,7 @@ int main() {
 
     printf("MMSE Training: %f\n", minMeanSquareError(trainTest.training, node->activatedVal,
                                                      TRAINING_MAX));
-
+    prediction(node->biasWeights,trainTest.testing);
     /* printf("MMSE Testing: %f\n", minMeanSquareError(testing, activatedVal, TESTING_MAX)); */
 
     /* Testing */
