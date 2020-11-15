@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "node.h"
 #include "dataparser.h"
 #include "forwardprop.h"
 #include "backprop.h"
@@ -28,19 +27,20 @@ Dataset_t splitData(double** data) {
 
     return split;
 }
-double* prediction(double* biasWeights,double** testing){
-    double* test=(double*)malloc(TESTING_MAX * sizeof(int));
-    test = linearRegression(testing, biasWeights, TESTING_MAX);
-    test = sigmoid(test, TESTING_MAX);
+
+
+int* predict(double** data, double* biasWeights) {
+    double* result = (double*)malloc(TESTING_MAX * sizeof(double));
+    result = linearRegression(data, biasWeights, TESTING_MAX);
+    result = sigmoid(result, TESTING_MAX);
     for(int i = 0; i < TESTING_MAX; i++){
-        printf("%f\n",*(test+i));
-        if ( *(test + i) > 0.5) {
-            *(test + i) = 1;
-        }else{
-            *(test + i) = 0;
-        }
+        printf("%f\n", *(result + i));
+        if ( *(result + i) > 0.5)
+            *(result + i) = 1;
+        else
+            *(result + i) = 0;
     }
-    return test;
+    return (int*)result;
 }
 
 
@@ -82,7 +82,7 @@ int main() {
 
     printf("MMSE Training: %f\n", minMeanSquareError(trainTest.training, node->activatedVal,
                                                      TRAINING_MAX));
-    prediction(node->biasWeights,trainTest.testing);
+    int* prediction = predict(trainTest.testing, node->biasWeights);
     /* printf("MMSE Testing: %f\n", minMeanSquareError(testing, activatedVal, TESTING_MAX)); */
 
     /* Testing */
