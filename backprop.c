@@ -27,7 +27,7 @@ double meanAbsoluteValue(double** data, double* activatedVal, int val) {
     double total = 0.0;
     for (int rows = 0; rows < val; rows++) {
         total += fabs( *(activatedVal + rows) -
-                data[rows][DATA_COLUMNS - 1]); /* TODO:description */
+                data[rows][DATA_COLUMNS - 1]); /* formula provided for MAE, calcadds everyvalue to be divided in line 32 */
     }
     return total / val;
 }
@@ -63,14 +63,14 @@ double* backwardsPropagation(double* biasWeights, double* activatedVal,
         double weightTotal = 0.0;
         for (int rows = 0; rows < TRAINING_MAX; rows++) {
             double weightBiasUpdate = exp( *(lr + cols)) / pow(1.0 + exp( *(lr + cols)), 2.0) *
-                (*(activatedVal + cols) - data[rows][DATA_COLUMNS - 1]); /* TODO:description */
-            weightTotal += (weightBiasUpdate * data[rows][cols]); /* TODO:description */
+                (*(activatedVal + cols) - data[rows][DATA_COLUMNS - 1]); /* calculation of each val in summation of bet */
+            weightTotal += (weightBiasUpdate * data[rows][cols]); /* summation of all values for one element in wet */
 
-            if (cols == 0) biasTotal += weightBiasUpdate; /* TODO:description */
+            if (cols == 0) biasTotal += weightBiasUpdate; /* summation of values for bet formula */
         }
         *(newBiasWeights + 1 + cols) = *(biasWeights + 1 + cols) -
-            (LEARNING_RATE * (weightTotal / TRAINING_MAX)); /* TODO:description */
+            (LEARNING_RATE * (weightTotal / TRAINING_MAX)); /* storing of and calculation of wet values according to formula */
     }
-    *newBiasWeights = *(biasWeights) - (LEARNING_RATE * (biasTotal / TRAINING_MAX)); /* TODO:description */
+    *newBiasWeights = *(biasWeights) - (LEARNING_RATE * (biasTotal / TRAINING_MAX)); /* calculation of bet using formula */
     return newBiasWeights;
 }
