@@ -36,7 +36,7 @@ double minMeanSquareError(double** data, double* activatedVal, int val) {
  * confusionMatrix(): Evaluates prediction to true label
  *
  * @data:             Attributes from dataset
- * @res:
+ * @res:              Result from prediction
  * @val:              Size of data in rows
  *
  * Part 2e
@@ -48,20 +48,18 @@ double minMeanSquareError(double** data, double* activatedVal, int val) {
  *
  * Return: Array of strings for confusion matrix
  */
-char** confusionMatrix(double** data, double* res, int val) {
+char** confusionMatrix(double** data, int* res, int val) {
     char** confusion = (char**)malloc(val * 2 * sizeof(char*));
     for (int i = 0; i < val; i++) {
         int origin = data[i][DATA_COLUMNS - 1];
-        int result = res[i];
         char* con = "TP";
-        if (origin == result) {
-            if (origin == 0) con = "TN"; // true neg
-            //1=true positive
+        if (origin == res[i]) {
+            if (origin == 0) con = "TN"; /* true negative */
+                                         /* origin == 1 true positive */
         } else {
-            con = "FP"; // false positive
-            if (origin == 0) con = "FN"; // false neg
+            con = "FP";                  /* false positive */
+            if (origin == 0) con = "FN"; /* false negative */
         }
-        // printf("%d  %d  %i\n",origin,result,con);
         *(confusion + i) = con;
     }
     return confusion;

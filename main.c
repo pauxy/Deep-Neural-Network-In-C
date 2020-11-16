@@ -17,7 +17,6 @@ typedef struct Dataset_t {
     double** testing;
 } Dataset_t;
 
-
 Dataset_t splitData(double** data) {
     Dataset_t split;
     split.training = (double**)malloc(TRAINING_MAX * sizeof(double*));
@@ -29,18 +28,25 @@ Dataset_t splitData(double** data) {
 }
 
 
-int* predict(double** data, double* biasWeights) {
-    double* result = (double*)malloc(TESTING_MAX * sizeof(double));
-    result = linearRegression(data, biasWeights, TESTING_MAX);
-    result = sigmoid(result, TESTING_MAX);
-    for(int i = 0; i < TESTING_MAX; i++){
-        printf("%f\n", *(result + i));
-        if ( *(result + i) > 0.5)
-            *(result + i) = 1;
+typedef struct ResultPrediction_t {
+    double* result;
+    int* prediction;
+} ResultPrediction_t;
+
+ResultPrediction_t predict(double** data, double* biasWeights) {
+    ResultPrediction_t resPredict;
+
+    resPredict.result = linearRegression(data, biasWeights, TESTING_MAX);
+    resPredict.result = sigmoid(resPredict.result, TESTING_MAX);
+
+    resPredict.prediction = (int*)malloc(TESTING_MAX * sizeof(int));
+    for (int i = 0; i < TESTING_MAX; i++){
+        if ( *(resPredict.result + i) > 0.5)
+            *(resPredict.prediction + i) = 1;
         else
-            *(result + i) = 0;
+            *(resPredict.prediction + i) = 0;
     }
-    return (int*)result;
+    return resPredict;
 }
 
 
@@ -82,7 +88,9 @@ int main() {
 
     printf("MMSE Training: %f\n", minMeanSquareError(trainTest.training, node->activatedVal,
                                                      TRAINING_MAX));
-    int* prediction = predict(trainTest.testing, node->biasWeights);
+    ResultPrediction_t resPredict = predict(trainTest.testing, node->biasWeights);
+    char** cm = confusionMatrix(trainTest.testing, resPredict.prediction, TESTING_MAX);
+
     /* printf("MMSE Testing: %f\n", minMeanSquareError(testing, activatedVal, TESTING_MAX)); */
 
     /* Testing */
@@ -110,5 +118,7 @@ int main() {
     free(node->biasWeights);
     free(node->lr);
     free(node->activatedVal);
+    free(resPredict.prediction);
+    free(resPredict.result);
     return 0;
 }
