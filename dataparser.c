@@ -36,7 +36,7 @@ double** openData(char* filename) {
         puts("File could not be opened");
         exit(1);
     }
-
+    /* ~ end ~ */
     double* row = (double*)malloc(DATA_ROWS * DATA_ROWS * sizeof(double));
     double** data = (double**)malloc(DATA_ROWS * sizeof(double*));
 
