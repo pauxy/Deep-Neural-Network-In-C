@@ -9,7 +9,6 @@ typedef struct Node_t {
     double* biasWeights;
     double* lr;
     double* activatedVal;
-    double maeVal;
 } Node_t;
 
 typedef struct Layer_t {

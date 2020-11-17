@@ -12,6 +12,8 @@
 #include "loss.h"
 #include "mlp.h"
 
+double MAE_VAL;
+
 typedef struct Dataset_t {
     double** training;
     double** testing;
@@ -65,22 +67,22 @@ int main() {
 
     node->lr = (double*)malloc(TRAINING_MAX * sizeof(double));
     node->activatedVal = (double*)malloc(TRAINING_MAX * sizeof(double));
-    node->maeVal = 0.0;
+    MAE_VAL = 0.0;
 
     do {
         node->lr = linearRegression(trainTest.training, node->biasWeights, TRAINING_MAX);
         node->activatedVal = sigmoid(node->lr, TRAINING_MAX);
-        node->maeVal = meanAbsoluteValue(trainTest.training, node->activatedVal,
-                                         TRAINING_MAX);
+        MAE_VAL = meanAbsoluteValue(trainTest.training, node->activatedVal,
+                                    TRAINING_MAX);
         t++;
 
-        fprintf(graph, "%i %lf \n", t, node->maeVal);
-        if (node->maeVal > 0.25) {
+        fprintf(graph, "%i %lf \n", t, MAE_VAL);
+        if (MAE_VAL > 0.25) {
             node->biasWeights = backwardsPropagation(trainTest.training, node->biasWeights,
                                                      node->activatedVal, node->lr);
         }
 
-    } while (node->maeVal > 0.25);
+    } while (MAE_VAL > 0.25);
 
     fprintf(gnuplotPipe, "plot 'graph.temp' with lines\n");
     fclose(gnuplotPipe);
@@ -92,27 +94,6 @@ int main() {
     char** cm = confusionMatrix(trainTest.testing, resPredict.prediction, TESTING_MAX);
 
     /* printf("MMSE Testing: %f\n", minMeanSquareError(testing, activatedVal, TESTING_MAX)); */
-
-    /* Testing */
-    /* double* testLR =  (double*)malloc(TESTING_MAX * sizeof(double)); */
-    /* testLR = linearRegression(testing, biasWeights, TESTING_MAX); */
-    /* testLR = sigmoid(testLR, TESTING_MAX); */
-    /* for(int i = 0; i < TESTING_MAX; i++){ */
-        /* //printf("test: %f\n", *(testLR + i)); */
-        /* if ( *(testLR + i) > 0.25) { */
-            /* *(testLR + i) = 1; */
-        /* } else { */
-            /* *(testLR + i) = 0; */
-        /* } */
-    /* } */
-
-    /* char** cm = (char**)malloc(2 * 10 * sizeof(char*)); */
-    /* cm = confusionMatrix(testing, testLR, 10); */
-    /* printf("Origin      Predict         Res\n"); */
-    /* for (int i = 0; i < TESTING_MAX; i++) { */
-
-        /* printf("%f     %f      %s\n",testing[0+i][DATA_COLUMNS-1],testLR[0+i],cm[0+i]); */
-    /* } */
 
     free(trainTest.training);
     free(node->biasWeights);
