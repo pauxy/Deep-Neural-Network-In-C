@@ -5,7 +5,9 @@
 #ifndef FORWARDPROP_H
 #define FORWARDPROP_H
 
-double* linearRegression(double**, double*, int);
+#include "mlp.h"
+
+double* linearRegression(double**, BiasWeights_t, int);
 double* sigmoid(double*, int);
 
 #endif // FORWARDPROP_H

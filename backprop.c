@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "dataparser.h"
+#include "mlp.h"
 
 /**
  * meanAbsoluteValue(): Calculates MAE for each iteration
@@ -36,12 +37,11 @@ double meanAbsoluteValue(double** data, double* activatedVal, int val) {
 /**
  * backwardsPropagation(): Updates weights and biases for each iteration
  *
- * @biasWeights:      Array of bias and weights where bias is the first element and the rest are weights
+ * @biasWeights:      Struct of bias and weights where bias is the first element and the rest are weights
  * @activatedVal:     Activated values passed from the sigmoid function
  * @data:             Attributes from dataset
  * @lr:               Array of the calculated sum of weights, inputs and biases using formula
  *
- * @newBiasWeights:   Updated values of @biasWeights
  * @biasTotal:        Diffrentiation of the cost function with respect to the biases
  * @weightTotal:      Diffrentiation of the cost function with respect to the weights
  * @weightBiasUpdate: Amount required to adjust both bias and weights using formula
@@ -53,24 +53,23 @@ double meanAbsoluteValue(double** data, double* activatedVal, int val) {
  * \overrightarrow{\textbf{w}}^{t} - \eta \triangledown_{w}E^{t}
  * b_{i}^{t} - \eta \triangledown_{b}E^{t}
  *
- * Return: double* newBiasWeights
+ * Return: BiasWeights_t biasWeights
  */
-double* backwardsPropagation(double** data, double* biasWeights,
-                             double* activatedVal, double* lr) {
-    double* newBiasWeights = (double*)malloc((ATTR_COLUMNS + 1) * sizeof(double));
+BiasWeights_t backwardsPropagation(double** data, BiasWeights_t biasWeights,
+                                   double* activatedVal, double* lr) {
     double biasTotal = 0.0;
     for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
         double weightTotal = 0.0;
         for (int rows = 0; rows < TRAINING_MAX; rows++) {
             double weightBiasUpdate = exp( *(lr + cols)) / pow(1.0 + exp( *(lr + cols)), 2.0) *
-                (*(activatedVal + cols) - data[rows][DATA_COLUMNS - 1]); /* calculation of each val in summation of bet */
+                ( *(activatedVal + cols) - data[rows][DATA_COLUMNS - 1]); /* calculation of each val in summation of bet */
             weightTotal += (weightBiasUpdate * data[rows][cols]); /* summation of all values for one element in wet */
 
             if (cols == 0) biasTotal += weightBiasUpdate; /* summation of values for bet formula */
         }
-        *(newBiasWeights + 1 + cols) = *(biasWeights + 1 + cols) -
+        *(biasWeights.weights + cols) = *(biasWeights.weights + cols) -
             (LEARNING_RATE * (weightTotal / TRAINING_MAX)); /* storing of and calculation of wet values according to formula */
     }
-    *newBiasWeights = *(biasWeights) - (LEARNING_RATE * (biasTotal / TRAINING_MAX)); /* calculation of bet using formula */
-    return newBiasWeights;
+    biasWeights.bias = biasWeights.bias - (LEARNING_RATE * (biasTotal / TRAINING_MAX)); /* calculation of bet using formula */
+    return biasWeights;
 }

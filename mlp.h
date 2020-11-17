@@ -5,8 +5,13 @@
 #ifndef MLP_H
 #define MLP_H
 
+typedef struct BiasWeights_t {
+    double* weights;
+    double bias;
+} BiasWeights_t;
+
 typedef struct Node_t {
-    double* biasWeights;
+    BiasWeights_t biasWeights;
     double* lr;
     double* activatedVal;
 } Node_t;
@@ -17,6 +22,6 @@ typedef struct Layer_t {
 } Layer_t;
 
 Layer_t genLayer(int);
-double* initBiasWeights(int);
+BiasWeights_t initBiasWeights(int);
 
 #endif // MLP_H

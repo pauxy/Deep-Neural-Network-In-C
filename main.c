@@ -35,7 +35,7 @@ typedef struct ResultPrediction_t {
     int* prediction;
 } ResultPrediction_t;
 
-ResultPrediction_t predict(double** data, double* biasWeights) {
+ResultPrediction_t predict(double** data, BiasWeights_t biasWeights) {
     ResultPrediction_t resPredict;
 
     resPredict.result = linearRegression(data, biasWeights, TESTING_MAX);
@@ -96,7 +96,7 @@ int main() {
     /* printf("MMSE Testing: %f\n", minMeanSquareError(testing, activatedVal, TESTING_MAX)); */
 
     free(trainTest.training);
-    free(node->biasWeights);
+    free(node->biasWeights.weights);
     free(node->lr);
     free(node->activatedVal);
     free(resPredict.prediction);

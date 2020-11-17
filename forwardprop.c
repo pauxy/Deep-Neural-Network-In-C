@@ -7,12 +7,13 @@
 
 #include "dataparser.h"
 #include "forwardprop.h"
+#include "mlp.h"
 
 /**
  * linearRegression(): Calculates linear regression for each iteration
  *
  * @data:              2D array of dataset where each columns are attributes
- * @biasWeights:       Array of bias and weights where the firest element is the bias and the
+ * @biasWeights:       Struct of bias and weights where the firest element is the bias and the
  *                     remaining elements are weights
  * @val:               Size of data in rows
  * @lr:                Array of the calculated sum of weights, inputs and biases using formula
@@ -24,14 +25,14 @@
  *
  * Return: double* lr
  */
-double* linearRegression(double** data, double* biasWeights, int val){
+double* linearRegression(double** data, BiasWeights_t biasWeights, int val){
     double* lr = (double*)malloc(val * sizeof(double));
     for (int rows = 0; rows < val; rows++) {
         *(lr + rows) = 0;                                /* initialise to zero the var for the addition of columns in data */
         for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
             // printf("%f\n", *(lr + rows));
-            *(lr + rows) += (*(biasWeights + 1 + cols) *
-                    data[rows][cols]) + *biasWeights; /* adds to counter and appends to array using lr fomula */
+            *(lr + rows) += ( *(biasWeights.weights + cols) *
+                    data[rows][cols]) + biasWeights.bias; /* adds to counter and appends to array using lr fomula */
         }
     }
     return lr;
