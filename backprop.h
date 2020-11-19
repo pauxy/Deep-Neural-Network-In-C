@@ -8,6 +8,6 @@
 #include "mlp.h"
 
 double meanAbsoluteValue(double**, double*, int);
-BiasWeights_t backwardsPropagation(double**, BiasWeights_t, double*, double*);
+BiasWeights_t backwardsPropagation(double**, BiasWeights_t, double*, double*, int, int);
 
 #endif // BACKPROP_H

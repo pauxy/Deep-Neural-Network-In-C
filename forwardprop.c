@@ -15,7 +15,9 @@
  * @data:              2D array of dataset where each columns are attributes
  * @biasWeights:       Struct of bias and weights where the firest element is the bias and the
  *                     remaining elements are weights
- * @val:               Size of data in rows
+ * @batchSize:         Size of batch
+ * @connections:       Number of connections perceptron will have
+ *
  * @lr:                Array of the calculated sum of weights, inputs and biases using formula
  *
  * Part 2a
@@ -25,11 +27,12 @@
  *
  * Return: double* lr
  */
-double* linearRegression(double** data, BiasWeights_t biasWeights, int val){
-    double* lr = (double*)malloc(val * sizeof(double));
-    for (int rows = 0; rows < val; rows++) {
+double* linearRegression(double** data, BiasWeights_t biasWeights,
+                         int batchSize, int connections) {
+    double* lr = (double*)malloc(batchSize * sizeof(double));
+    for (int rows = 0; rows < batchSize; rows++) {
         *(lr + rows) = 0;                                /* initialise to zero the var for the addition of columns in data */
-        for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
+        for (int cols = 0; cols < connections; cols++) {
             // printf("%f\n", *(lr + rows));
             *(lr + rows) += ( *(biasWeights.weights + cols) *
                     data[rows][cols]) + biasWeights.bias; /* adds to counter and appends to array using lr fomula */
@@ -43,7 +46,7 @@ double* linearRegression(double** data, BiasWeights_t biasWeights, int val){
  * sigmoid():     Squashes input into double between 0-1
  *
  * @lr:           Array of calculated sum from linearRegression()
- * @val:          Size of data in rows
+ * @batchSize:    Size of batch
  *
  * @activatedVal: Array of lr after running sigmoid function
  *
@@ -54,9 +57,9 @@ double* linearRegression(double** data, BiasWeights_t biasWeights, int val){
  *
  * Return: double* activatedVal
  */
-double* sigmoid(double* lr, int val) {
-    double* activatedVal = (double*)malloc(val * sizeof(double));
-    for(int rows = 0; rows < val; rows++){
+double* sigmoid(double* lr, int batchSize) {
+    double* activatedVal = (double*)malloc(batchSize * sizeof(double));
+    for(int rows = 0; rows < batchSize; rows++){
         *(activatedVal + rows) = 1.0 / (1.0 + exp(- *(lr + rows))); /* sigmoid formula as provided */
     }
     return activatedVal;

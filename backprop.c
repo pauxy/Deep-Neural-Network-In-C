@@ -13,7 +13,7 @@
  *
  * @data:               Attributes from dataset
  * @activatedVal:       Activated values passed from the sigmoid function
- * @val:                Size of data in rows
+ * @batchSize:          Size of data in rows
  *
  * @total:              Absolute sum of activated values minus true label of data sample
  *
@@ -24,13 +24,13 @@
  *
  * Return: Averaged sum of activated values subtracted by true label
  */
-double meanAbsoluteValue(double** data, double* activatedVal, int val) {
+double meanAbsoluteValue(double** data, double* activatedVal, int batchSize) {
     double total = 0.0;
-    for (int rows = 0; rows < val; rows++) {
+    for (int rows = 0; rows < batchSize; rows++) {
         total += fabs( *(activatedVal + rows) -
                 data[rows][DATA_COLUMNS - 1]); /* formula provided for MAE, calcadds everyvalue to be divided in line 32 */
     }
-    return total / val;
+    return total / batchSize;
 }
 
 
@@ -41,6 +41,8 @@ double meanAbsoluteValue(double** data, double* activatedVal, int val) {
  * @activatedVal:     Activated values passed from the sigmoid function
  * @data:             Attributes from dataset
  * @lr:               Array of the calculated sum of weights, inputs and biases using formula
+ * @batchSize:        Size of batch
+ * @connections:      Number of connections perceptron will have
  *
  * @biasTotal:        Diffrentiation of the cost function with respect to the biases
  * @weightTotal:      Diffrentiation of the cost function with respect to the weights
@@ -56,11 +58,12 @@ double meanAbsoluteValue(double** data, double* activatedVal, int val) {
  * Return: BiasWeights_t biasWeights
  */
 BiasWeights_t backwardsPropagation(double** data, BiasWeights_t biasWeights,
-                                   double* activatedVal, double* lr) {
+                                   double* activatedVal, double* lr,
+                                   int batchSize, int connections) {
     double biasTotal = 0.0;
-    for (int cols = 0; cols < ATTR_COLUMNS; cols++) {
+    for (int cols = 0; cols < connections; cols++) {
         double weightTotal = 0.0;
-        for (int rows = 0; rows < TRAINING_MAX; rows++) {
+        for (int rows = 0; rows < batchSize; rows++) {
             double weightBiasUpdate = exp( *(lr + cols)) / pow(1.0 + exp( *(lr + cols)), 2.0) *
                 ( *(activatedVal + cols) - data[rows][DATA_COLUMNS - 1]); /* calculation of each val in summation of bet */
             weightTotal += (weightBiasUpdate * data[rows][cols]); /* summation of all values for one element in wet */
@@ -68,8 +71,8 @@ BiasWeights_t backwardsPropagation(double** data, BiasWeights_t biasWeights,
             if (cols == 0) biasTotal += weightBiasUpdate; /* summation of values for bet formula */
         }
         *(biasWeights.weights + cols) = *(biasWeights.weights + cols) -
-            (LEARNING_RATE * (weightTotal / TRAINING_MAX)); /* storing of and calculation of wet values according to formula */
+            (LEARNING_RATE * (weightTotal / batchSize)); /* storing of and calculation of wet values according to formula */
     }
-    biasWeights.bias = biasWeights.bias - (LEARNING_RATE * (biasTotal / TRAINING_MAX)); /* calculation of bet using formula */
+    biasWeights.bias = biasWeights.bias - (LEARNING_RATE * (biasTotal / batchSize)); /* calculation of bet using formula */
     return biasWeights;
 }

@@ -36,7 +36,7 @@ typedef struct ResultPrediction_t {
 ResultPrediction_t predict(double** data, BiasWeights_t biasWeights) {
     ResultPrediction_t resPredict;
 
-    resPredict.result = linearRegression(data, biasWeights, TESTING_MAX);
+    resPredict.result = linearRegression(data, biasWeights, TESTING_MAX, ATTR_COLUMNS);
     resPredict.result = sigmoid(resPredict.result, TESTING_MAX);
 
     resPredict.prediction = (int*)malloc(TESTING_MAX * sizeof(int));
@@ -68,7 +68,7 @@ int main() {
     MAE_VAL = 0.0;
 
     do {
-        node->lr = linearRegression(trainTest[0], node->biasWeights, TRAINING_MAX);
+        node->lr = linearRegression(trainTest[0], node->biasWeights, TRAINING_MAX, ATTR_COLUMNS);
         node->activatedVal = sigmoid(node->lr, TRAINING_MAX);
         MAE_VAL = meanAbsoluteValue(trainTest[0], node->activatedVal,
                                     TRAINING_MAX);
@@ -77,7 +77,8 @@ int main() {
         fprintf(graph, "%i %lf \n", t, MAE_VAL);
         if (MAE_VAL > 0.25) {
             node->biasWeights = backwardsPropagation(trainTest[0], node->biasWeights,
-                                                     node->activatedVal, node->lr);
+                                                     node->activatedVal, node->lr,
+                                                     TRAINING_MAX, ATTR_COLUMNS);
         }
 
     } while (MAE_VAL > 0.25);
