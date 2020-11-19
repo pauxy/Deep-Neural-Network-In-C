@@ -14,17 +14,15 @@
 
 double MAE_VAL;
 
-typedef struct Dataset_t {
-    double** training;
-    double** testing;
-} Dataset_t;
+double*** splitData(double** data) {
+    double** training = (double**)malloc(TRAINING_MAX * sizeof(double*));
 
-Dataset_t splitData(double** data) {
-    Dataset_t split;
-    split.training = (double**)malloc(TRAINING_MAX * sizeof(double*));
+    training = data;
+    double** testing = data + TRAINING_MAX;
 
-    split.training = data;
-    split.testing = data + TRAINING_MAX;
+    double*** split = (double***)malloc(2 * sizeof(double**));
+    split[0] = training;
+    split[1] = testing;
 
     return split;
 }
@@ -57,7 +55,7 @@ int main() {
     FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
 
     double** data = openData("dataset/fertility_Diagnosis_Data_Group1_4-1.txt");
-    Dataset_t trainTest = splitData(data);
+    double*** trainTest = splitData(data);
 
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
 
@@ -70,15 +68,15 @@ int main() {
     MAE_VAL = 0.0;
 
     do {
-        node->lr = linearRegression(trainTest.training, node->biasWeights, TRAINING_MAX);
+        node->lr = linearRegression(trainTest[0], node->biasWeights, TRAINING_MAX);
         node->activatedVal = sigmoid(node->lr, TRAINING_MAX);
-        MAE_VAL = meanAbsoluteValue(trainTest.training, node->activatedVal,
+        MAE_VAL = meanAbsoluteValue(trainTest[0], node->activatedVal,
                                     TRAINING_MAX);
         t++;
 
         fprintf(graph, "%i %lf \n", t, MAE_VAL);
         if (MAE_VAL > 0.25) {
-            node->biasWeights = backwardsPropagation(trainTest.training, node->biasWeights,
+            node->biasWeights = backwardsPropagation(trainTest[0], node->biasWeights,
                                                      node->activatedVal, node->lr);
         }
 
@@ -88,14 +86,15 @@ int main() {
     fclose(gnuplotPipe);
     fclose(graph);
 
-    printf("MMSE Training: %f\n", minMeanSquareError(trainTest.training, node->activatedVal,
+    printf("MMSE Training: %f\n", minMeanSquareError(trainTest[0], node->activatedVal,
                                                      TRAINING_MAX));
-    ResultPrediction_t resPredict = predict(trainTest.testing, node->biasWeights);
-    char** cm = confusionMatrix(trainTest.testing, resPredict.prediction, TESTING_MAX);
+    ResultPrediction_t resPredict = predict(trainTest[1], node->biasWeights);
+    char** cm = confusionMatrix(trainTest[1], resPredict.prediction, TESTING_MAX);
 
     /* printf("MMSE Testing: %f\n", minMeanSquareError(testing, activatedVal, TESTING_MAX)); */
 
-    free(trainTest.training);
+    free(trainTest[0]);
+    free(trainTest);
     free(node->biasWeights.weights);
     free(node->lr);
     free(node->activatedVal);
