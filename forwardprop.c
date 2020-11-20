@@ -12,7 +12,7 @@
 /**
  * linearRegression(): Calculates linear regression for each iteration
  *
- * @data:              2D array of dataset where each columns are attributes
+ * @input:             2D array of input from previous layer
  * @biasWeights:       Struct of bias and weights where the firest element is the bias and the
  *                     remaining elements are weights
  * @batchSize:         Size of batch
@@ -27,7 +27,7 @@
  *
  * Return: double* lr
  */
-double* linearRegression(double** data, BiasWeights_t biasWeights,
+double* linearRegression(double** input, BiasWeights_t biasWeights,
                          int batchSize, int connections) {
     double* lr = (double*)malloc(batchSize * sizeof(double));
     for (int rows = 0; rows < batchSize; rows++) {
@@ -35,7 +35,7 @@ double* linearRegression(double** data, BiasWeights_t biasWeights,
         for (int cols = 0; cols < connections; cols++) {
             // printf("%f\n", *(lr + rows));
             *(lr + rows) += ( *(biasWeights.weights + cols) *
-                    data[rows][cols]) + biasWeights.bias; /* adds to counter and appends to array using lr fomula */
+                    input[rows][cols]) + biasWeights.bias; /* adds to counter and appends to array using lr fomula */
         }
     }
     return lr;
