@@ -5,8 +5,8 @@
 #ifndef LOSS_H
 #define LOSS_H
 
-double meanAbsoluteValue(double**, double*, int);
-double minMeanSquareError(double**, double*, int);
-char** confusionMatrix(double**, int*, int);
+double meanAbsoluteValue(int*, double*, int);
+double minMeanSquareError(int*, double*, int);
+char** confusionMatrix(int*, int*, int);
 
 #endif // LOSS_H

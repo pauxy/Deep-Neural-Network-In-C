@@ -10,7 +10,12 @@ extern const int TESTING_MAX;
 extern const int DATA_COLUMNS;
 extern const int DATA_ROWS;
 extern const int ATTR_COLUMNS;
+typedef struct Inputoutput_t{
+    int* output;
+    double* input[9];
+} Inputoutput_t;
 
-double** openData(char*);
+Inputoutput_t openData(char*);
 
 #endif // DATAPARSER_H
+            

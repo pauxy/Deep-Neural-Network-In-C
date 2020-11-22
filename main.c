@@ -15,13 +15,19 @@
 
 double MAE_VAL;
 
-double*** splitData(double** data) {
-    double** training = (double**)malloc(TRAINING_MAX * sizeof(double*));
+Inputoutput_t* splitData(Inputoutput_t data) {
+    Inputoutput_t training;
+    *(training.input) = (double*)malloc(TRAINING_MAX * sizeof(double));
+    training.output = (int*)malloc(TRAINING_MAX * sizeof(int));
+    Inputoutput_t testing;
+    *(testing.input) = (double*)malloc(TESTING_MAX * sizeof(double));
+    testing.output = (int*)malloc(TESTING_MAX * sizeof(int));
+    *(training.input) = *(data.input);
+    training.output = data.output;
+    *(testing.input) = *(data.input + TRAINING_MAX);
+    testing.output = data.output + TRAINING_MAX;
 
-    training = data;
-    double** testing = data + TRAINING_MAX;
-
-    double*** split = (double***)malloc(2 * sizeof(double**));
+    Inputoutput_t* split = (Inputoutput_t*)malloc(2 * sizeof(Inputoutput_t));
     split[0] = training;
     split[1] = testing;
 
@@ -34,7 +40,7 @@ typedef struct ResultPrediction_t {
     int* prediction;
 } ResultPrediction_t;
 
-ResultPrediction_t predict(double** data, BiasWeights_t biasWeights) {
+ResultPrediction_t predict(Inputoutput_t data, BiasWeights_t biasWeights) {
     ResultPrediction_t resPredict;
 
     resPredict.result = (double*)malloc(TESTING_MAX * sizeof(double));
@@ -59,8 +65,8 @@ int main() {
     FILE* graph = fopen("graph.temp","w");
     FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
 
-    double** data = openData("dataset/fertility_Diagnosis_Data_Group1_4-1.txt");
-    double*** trainTest = splitData(data);
+    Inputoutput_t data = openData("dataset/fertility_Diagnosis_Data_Group1_4-1.txt");
+    Inputoutput_t* trainTest = splitData(data);
 
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
     node->connections = ATTR_COLUMNS;
