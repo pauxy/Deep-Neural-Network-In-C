@@ -14,6 +14,7 @@ typedef struct Node_t {
     BiasWeights_t biasWeights;
     double* lr;
     double* activatedVal;
+    int connections;
 } Node_t;
 
 typedef struct Layer_t {

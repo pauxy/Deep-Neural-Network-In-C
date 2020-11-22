@@ -59,7 +59,8 @@ int main() {
     double*** trainTest = splitData(data);
 
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
-    node->biasWeights = initBiasWeights(ATTR_COLUMNS);
+    node->connections = ATTR_COLUMNS;
+    node->biasWeights = initBiasWeights(node->connections);
     node->lr = (double*)malloc(TRAINING_MAX * sizeof(double));
     node->activatedVal = (double*)malloc(TRAINING_MAX * sizeof(double));
 
@@ -67,7 +68,8 @@ int main() {
     MAE_VAL = 0.0;
 
     do {
-        node->lr = linearRegression(trainTest[0], node->biasWeights, node->lr, TRAINING_MAX, ATTR_COLUMNS);
+        node->lr = linearRegression(trainTest[0], node->biasWeights, node->lr,
+                                    TRAINING_MAX, node->connections);
         node->activatedVal = sigmoid(node->lr, node->activatedVal, TRAINING_MAX);
         MAE_VAL = meanAbsoluteValue(trainTest[0], node->activatedVal,
                                     TRAINING_MAX);
@@ -77,7 +79,7 @@ int main() {
         if (MAE_VAL > 0.25) {
             node->biasWeights = backwardsPropagation(trainTest[0], node->biasWeights,
                                                      node->activatedVal, node->lr,
-                                                     TRAINING_MAX, ATTR_COLUMNS);
+                                                     TRAINING_MAX, node->connections);
         }
 
     } while (MAE_VAL > 0.25);
