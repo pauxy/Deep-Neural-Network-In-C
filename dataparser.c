@@ -12,7 +12,6 @@ const int TRAINING_MAX = 90;
 const int TESTING_MAX = 10;
 const int DATA_COLUMNS = 10;
 const int DATA_ROWS = 100;
-const double LEARNING_RATE = 0.05;
 const int ATTR_COLUMNS = DATA_COLUMNS - 1; /* columns exclusive of results */
 
 /**

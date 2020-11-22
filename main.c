@@ -35,8 +35,10 @@ typedef struct ResultPrediction_t {
 ResultPrediction_t predict(double** data, BiasWeights_t biasWeights) {
     ResultPrediction_t resPredict;
 
-    resPredict.result = linearRegression(data, biasWeights, TESTING_MAX, ATTR_COLUMNS);
-    resPredict.result = sigmoid(resPredict.result, TESTING_MAX);
+    resPredict.result = (double*)malloc(TESTING_MAX * sizeof(double));
+    resPredict.result = linearRegression(data, biasWeights, resPredict.result,
+                                         TESTING_MAX, ATTR_COLUMNS);
+    resPredict.result = sigmoid(resPredict.result, resPredict.result, TESTING_MAX);
 
     resPredict.prediction = (int*)malloc(TESTING_MAX * sizeof(int));
     for (int i = 0; i < TESTING_MAX; i++){
@@ -57,18 +59,16 @@ int main() {
     double*** trainTest = splitData(data);
 
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
-
     node->biasWeights = initBiasWeights(ATTR_COLUMNS);
-
-    int t = 0;
-
     node->lr = (double*)malloc(TRAINING_MAX * sizeof(double));
     node->activatedVal = (double*)malloc(TRAINING_MAX * sizeof(double));
+
+    int t = 0;
     MAE_VAL = 0.0;
 
     do {
-        node->lr = linearRegression(trainTest[0], node->biasWeights, TRAINING_MAX, ATTR_COLUMNS);
-        node->activatedVal = sigmoid(node->lr, TRAINING_MAX);
+        node->lr = linearRegression(trainTest[0], node->biasWeights, node->lr, TRAINING_MAX, ATTR_COLUMNS);
+        node->activatedVal = sigmoid(node->lr, node->activatedVal, TRAINING_MAX);
         MAE_VAL = meanAbsoluteValue(trainTest[0], node->activatedVal,
                                     TRAINING_MAX);
         t++;

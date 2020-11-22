@@ -8,6 +8,8 @@
 #include "dataparser.h"
 #include "mlp.h"
 
+const double LEARNING_RATE = 0.05;
+
 /**
  * backwardsPropagation(): Updates weights and biases for each iteration
  *
