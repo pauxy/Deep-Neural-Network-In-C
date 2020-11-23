@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "dataparser.h"
 
@@ -76,17 +77,32 @@ double minMeanSquareError(double** data, double* activatedVal, int batchSize) {
  */
 char** confusionMatrix(double** data, int* res, int batchSize) {
     char** confusion = (char**)malloc(batchSize * 2 * sizeof(char*));
+    int TP = 0;
+    int TN = 0;
+    int FP = 0;
+    int FN = 0;
     for (int i = 0; i < batchSize; i++) {
         int origin = data[i][DATA_COLUMNS - 1];
         char* con = "TP";
         if (origin == res[i]) {
-            if (origin == 0) con = "TN"; /* true negative */
+            TP++;
+            if (origin == 0) {
+                con = "TN"; /* true negative */
+                TN++;
+                TP--;
+            }
                                          /* origin == 1 true positive */
         } else {
-            con = "FP";                  /* false positive */
-            if (origin == 0) con = "FN"; /* false negative */
+            con = "FP";
+            FP++;                  /* false positive */
+            if (origin == 0){
+                con = "FN"; /* false negative */
+                FN++;
+                FP--;
+            }
         }
         *(confusion + i) = con;
     }
+    printf("\n-Confusion Matrix-\nTrue Positive: %d\nTrue Negative: %d\nFalse Positive: %d\nFalse Negative: %d\n",TP,TN,FP,FN);
     return confusion;
 }

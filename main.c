@@ -4,12 +4,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "dataparser.h"
 #include "forwardprop.h"
 #include "backprop.h"
 #include "loss.h"
 #include "mlp.h"
+
 
 double MAE_VAL;
 
@@ -52,6 +54,8 @@ ResultPrediction_t predict(double** data, BiasWeights_t biasWeights) {
 
 
 int main() {
+    struct timeval  tv1, tv2;
+    gettimeofday(&tv1, NULL);
     FILE* graph = fopen("graph.temp","w");
     FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
 
@@ -73,6 +77,10 @@ int main() {
         node->activatedVal = sigmoid(node->lr, node->activatedVal, TRAINING_MAX);
         MAE_VAL = meanAbsoluteValue(trainTest[0], node->activatedVal,
                                     TRAINING_MAX);
+        if(t==0){
+            printf("-Before Training-\nMMSE Training: %f\n", minMeanSquareError(trainTest[0], node->activatedVal,TRAINING_MAX));
+            printf("MMSE Testing: %f\n", minMeanSquareError(trainTest[1],node->activatedVal,TESTING_MAX));
+        }
         t++;
 
         fprintf(graph, "%i %lf \n", t, MAE_VAL);
@@ -87,14 +95,15 @@ int main() {
     fprintf(gnuplotPipe, "plot 'graph.temp' with lines\n");
     fclose(gnuplotPipe);
     fclose(graph);
-
-    printf("MMSE Training: %f\n", minMeanSquareError(trainTest[0], node->activatedVal,
-                                                     TRAINING_MAX));
+    printf("\n-After Training-\nMMSE Training: %f\n", minMeanSquareError(trainTest[0], node->activatedVal,TRAINING_MAX));
+    printf("MMSE Testing: %f\n", minMeanSquareError(trainTest[1], node->activatedVal,TESTING_MAX));
     ResultPrediction_t resPredict = predict(trainTest[1], node->biasWeights);
     char** cm = confusionMatrix(trainTest[1], resPredict.prediction, TESTING_MAX);
-
-    /* printf("MMSE Testing: %f\n", minMeanSquareError(testing, activatedVal, TESTING_MAX)); */
-
+    
+    gettimeofday(&tv2, NULL);
+    printf ("\nTotal time = %f seconds\n",
+         (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
     free(trainTest[0]);
     free(trainTest);
     free(node->biasWeights.weights);
