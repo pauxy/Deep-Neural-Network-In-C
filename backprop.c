@@ -33,7 +33,7 @@ const double LEARNING_RATE = 0.05;
  *
  * Return: BiasWeights_t biasWeights
  */
-BiasWeights_t backwardsPropagation(Inputoutput_t input, BiasWeights_t biasWeights,
+BiasWeights_t backwardsPropagation(double** input, int* output, BiasWeights_t biasWeights,
                                    double* activatedVal, double* lr,
                                    int batchSize, int connections) {
     double biasTotal = 0.0;
@@ -41,8 +41,8 @@ BiasWeights_t backwardsPropagation(Inputoutput_t input, BiasWeights_t biasWeight
         double weightTotal = 0.0;
         for (int rows = 0; rows < batchSize; rows++) {
             double weightBiasUpdate = exp( *(lr + cols)) / pow(1.0 + exp( *(lr + cols)), 2.0) *
-                ( *(activatedVal + cols) - input.output[rows]); /* calculation of each val in summation of bet */
-            weightTotal += (weightBiasUpdate * input.input[rows][cols]); /* summation of all values for one element in wet */
+                ( *(activatedVal + cols) - output[rows]); /* calculation of each val in summation of bet */
+            weightTotal += (weightBiasUpdate * input[rows][cols]); /* summation of all values for one element in wet */
 
             if (cols == 0) biasTotal += weightBiasUpdate; /* summation of values for bet formula */
         }

@@ -28,7 +28,7 @@ const int ATTR_COLUMNS = DATA_COLUMNS - 1; /* columns exclusive of results */
  *
  * Return:     2D array of attributes
  */
-Inputoutput_t openData(char* filename) {
+InputOutput_t openData(char* filename) {
     FILE* filelist = fopen(filename, "r");
     /* Authored by: Germaine Wong */
     if (filelist == NULL) { /* check if file exist */
@@ -36,21 +36,23 @@ Inputoutput_t openData(char* filename) {
         exit(1);
     }
     /* ~ end ~ */
-    Inputoutput_t data;
-    data.output = (int*)malloc(DATA_ROWS*sizeof(int));
-    data.input = (double *[9])malloc(DATA_ROWS*sizeof(double *[9]));
+
+    InputOutput_t data;
+    data.output = (int*)malloc(DATA_ROWS * sizeof(int));
+    data.input = (double**)malloc(DATA_ROWS * sizeof(double*));
+
     char line[256];
     int count = 0;
-
     while (fgets(line, sizeof(line), filelist) != NULL) { /* while file still has lines */
         char* token = strtok(line, ",");                    /* gets first data between ',' */
+        data.input[count] = (double*)malloc(sizeof(double));
         for (int col = 0; col < DATA_COLUMNS; col++) {
 
             if (col != 0) token = strtok(NULL, ",");        /* gets remaining data between ',' */
             if (col == DATA_COLUMNS - 1) {
                 data.output[count] = atoi(token);
-            }else{
-                *(data.input + count)[col] = atof(token);            /* convert string to float and assign */
+            } else {
+                data.input[count][col] = atof(token);            /* convert string to float and assign */
             }
         }
         count++;

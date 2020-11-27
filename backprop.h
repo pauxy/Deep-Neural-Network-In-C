@@ -7,6 +7,6 @@
 
 #include "mlp.h"
 
-BiasWeights_t backwardsPropagation(Inputoutput_t, BiasWeights_t, double*, double*, int, int);
+BiasWeights_t backwardsPropagation(double** input, int* output, BiasWeights_t, double*, double*, int, int);
 
 #endif // BACKPROP_H

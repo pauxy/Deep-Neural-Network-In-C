@@ -24,11 +24,11 @@
  *
  * Return: Averaged sum of activated values subtracted by true label
  */
-double meanAbsoluteValue(int* data, double* activatedVal, int batchSize) {
+double meanAbsoluteValue(int* expectedOutput, double* activatedVal, int batchSize) {
     double total = 0.0;
     for (int rows = 0; rows < batchSize; rows++) {
         total += fabs( *(activatedVal + rows) -
-                data[rows]); /* formula provided for MAE, calcadds everyvalue to be divided in line 32 */
+                expectedOutput[rows]); /* formula provided for MAE, calcadds everyvalue to be divided in line 32 */
     }
     return total / batchSize;
 }
@@ -49,11 +49,11 @@ double meanAbsoluteValue(int* data, double* activatedVal, int batchSize) {
  *
  * Return: Average of the sum of squares of errors
  */
-double minMeanSquareError(int* data, double* activatedVal, int batchSize) {
+double minMeanSquareError(int* expectedOutput, double* activatedVal, int batchSize) {
     double total = 0.0;
     for (int rows = 0; rows < batchSize; rows++) {
         total += pow(*(activatedVal + rows) -
-                data[rows], 2.0); /* TODO:description */
+                expectedOutput[rows], 2.0); /* TODO:description */
     }
     return total / batchSize;
 }
@@ -75,14 +75,14 @@ double minMeanSquareError(int* data, double* activatedVal, int batchSize) {
  *
  * Return: Array of strings for confusion matrix
  */
-char** confusionMatrix(int* data, int* res, int batchSize) {
+char** confusionMatrix(int* expectedOutput, int* res, int batchSize) {
     char** confusion = (char**)malloc(batchSize * 2 * sizeof(char*));
     int TP = 0;
     int TN = 0;
     int FP = 0;
     int FN = 0;
     for (int i = 0; i < batchSize; i++) {
-        int origin = data[i];
+        int origin = expectedOutput[i];
         char* con = "TP";
         if (origin == res[i]) {
             TP++;
