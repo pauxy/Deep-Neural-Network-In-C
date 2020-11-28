@@ -11,6 +11,32 @@
 const double LEARNING_RATE = 0.05;
 
 /**
+ * deSigmoid(): [TODO:description]
+ * @matmul: [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
+double deSigmoid(double muladd) {
+    return exp(muladd) / pow(1.0 + exp(muladd), 2.0);
+}
+
+
+/**
+ * deError(): [TODO:description]
+ * @activatedVal: [TODO:description]
+ * @expectedOutput: [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
+double deError(double activatedVal, int expectedOutput) {
+    return activatedVal - expectedOutput;
+}
+
+/**
  * backwardsPropagation(): Updates weights and biases for each iteration
  *
  * @biasWeights:           Struct of bias and weights where bias is the first element and the rest are weights
@@ -34,19 +60,21 @@ const double LEARNING_RATE = 0.05;
  * Return: BiasWeights_t biasWeights
  */
 BiasWeights_t backwardsPropagation(double** input, int* output, BiasWeights_t biasWeights,
-                                   double* activatedVal, double* lr,
+                                   double* activatedVal, double* muladd,
                                    int batchSize, int connections) {
     double biasTotal = 0.0;
     for (int cols = 0; cols < connections; cols++) {
         double weightTotal = 0.0;
         for (int rows = 0; rows < batchSize; rows++) {
-            double weightBiasUpdate = exp( *(lr + cols)) / pow(1.0 + exp( *(lr + cols)), 2.0) *
-                ( *(activatedVal + cols) - output[rows]); /* calculation of each val in summation of bet */
+            double weightBiasUpdate = deSigmoid(muladd[cols]) *
+                deError(activatedVal[cols], output[rows]); /* calculation of each val in
+                                                              summation of bet */
             weightTotal += (weightBiasUpdate * input[rows][cols]); /* summation of all values for
                                                                       one element in wet */
 
             if (cols == 0) biasTotal += weightBiasUpdate; /* summation of values for bet formula */
         }
+
         *(biasWeights.weights + cols) -= (LEARNING_RATE *
                 (weightTotal / batchSize)); /* storing of and calculation of wet values according to
                                                formula */
