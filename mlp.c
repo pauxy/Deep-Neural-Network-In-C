@@ -14,8 +14,8 @@ BiasWeights_t initBiasWeights(int inputFields) {
 
     srand(time(NULL));
     for (int cols = 0; cols < inputFields; cols++) {
-        *(biasWeights.weights + cols) = (double)rand() / (double)RAND_MAX; /* Randomly assign
-                                                                              weights and bias */
+        *(biasWeights.weights + cols) = (double)rand() /
+            (double)RAND_MAX * 2.0 - 1.0; /* Randomly assign weights and bias */
     }
     return biasWeights;
 }
