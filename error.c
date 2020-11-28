@@ -1,4 +1,4 @@
-/* loss.c -- Calculates MMSE and confusion matrix
+/* error.c -- Calculates MMSE and confusion matrix
  * Author: Lim Chun Yu
  */
 

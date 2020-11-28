@@ -5,6 +5,8 @@
 #ifndef MLP_H
 #define MLP_H
 
+#include "dataparser.h"
+
 typedef struct BiasWeights_t {
     double* weights;
     double bias;
@@ -22,7 +24,8 @@ typedef struct Layer_t {
     int numOfNodes;
 } Layer_t;
 
-Layer_t genLayer(int);
+Layer_t genLayer(int , int , double, InputOutput_t );
 BiasWeights_t initBiasWeights(int);
+void trainNodes(Node_t* , int, double, InputOutput_t );
 
 #endif // MLP_H

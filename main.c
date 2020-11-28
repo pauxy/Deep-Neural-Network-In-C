@@ -137,6 +137,7 @@ int main(int argc, char **argv) {
         }
 
     } while (MAE_VAL > reqMae);
+
     fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
     fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);
     fclose(gnuplotPipe);
