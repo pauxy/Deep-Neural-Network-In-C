@@ -11,7 +11,7 @@
 #include "dataparser.h"
 #include "forwardprop.h"
 #include "backprop.h"
-#include "loss.h"
+#include "error.h"
 #include "mlp.h"
 
 
