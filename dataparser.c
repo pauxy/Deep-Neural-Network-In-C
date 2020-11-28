@@ -32,7 +32,7 @@ InputOutput_t openData(char* filename) {
     FILE* filelist = fopen(filename, "r");
     /* Authored by: Germaine Wong */
     if (filelist == NULL) { /* check if file exist */
-        puts("File could not be opened");
+        fprintf(stderr, "File could not be opened");
         exit(1);
     }
     /* ~ end ~ */

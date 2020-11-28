@@ -56,43 +56,50 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
     return resPredict;
 }
 void help(){
-    printf("Perceptron command line input help.\nOptions are:\n-a <file name> : sets input file\n-b <mae value> : sets new minimum mae value\n-c <graph name> : sets new graph name\n-d <file name> : sets new output file name");
+    puts("Perceptron command line input help.");
+    puts("Options are:");
+    puts("-a <file name> : sets input file");
+    puts("-b <mae value> : sets new minimum mae value");
+    puts("-c <graph name> : sets new graph name");
+    puts("-d <file name> : sets new output file name");
 }
 
 
 int main(int argc, char **argv) {
+
     double reqMae = 0.25;
     char *ngraph = "perceptron";
     char *dfile = "dataset/fertility_Diagnosis_Data_Group1_4-1.txt";
     char *ofile = "graph.temp";
-    int index;
+
     int c;
     struct timeval  tv1, tv2;
     gettimeofday(&tv1, NULL);
-    while ((c = getopt (argc, argv, "a:c:d:b:")) != -1)
+    while ((c = getopt (argc, argv, "m:i:g:o:h")) != -1)
     switch (c) {
-        case 'a':
-            dfile = optarg;
-            break;
-        case 'b':
+        case 'm':
             reqMae = atof(optarg);
             break;
-        case 'c':
+        case 'i':
+            dfile = optarg;
+            break;
+        case 'g':
             ngraph = optarg;
             break;
-        case 'd':
+        case 'o':
             ofile = optarg;
             break;
         case '?':
-            if (optopt == 'c' || optopt == 'a' || optopt == 'b' || optopt == 'd')
-                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+            if (optopt == 'm' || optopt == 'i' || optopt == 'g' || optopt == 'o')
+                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
             else
-                fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
                 help();
             return 1;
       default:
             help();
+            return 0;
     }
+
     FILE* graph = fopen(ofile, "w");
     FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
 
@@ -130,8 +137,8 @@ int main(int argc, char **argv) {
         }
 
     } while (MAE_VAL > reqMae);
-    //fprintf(gnuplotPipe, "set title %s\n",ngraph);
-    fprintf(gnuplotPipe, "plot '%s' with lines\n",ofile);
+    fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
+    fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);
     fclose(gnuplotPipe);
     fclose(graph);
     printf("\n-After Training-\nMMSE Training: %f\n",
