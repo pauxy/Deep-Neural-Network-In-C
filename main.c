@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <unistd.h>
+
 
 #include "dataparser.h"
 #include "forwardprop.h"
@@ -53,15 +55,48 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
     }
     return resPredict;
 }
+void help(){
+    printf("Perceptron command line input help.\nOptions are:\n-a <file name> : sets input file\n-b <mae value> : sets new minimum mae value\n-c <graph name> : sets new graph name\n-d <file name> : sets new output file name");
+}
 
 
-int main() {
+int main(int argc, char **argv) {
+    double reqMae = 0.25;
+    char *ngraph = "perceptron";
+    char *dfile = "dataset/fertility_Diagnosis_Data_Group1_4-1.txt";
+    char *ofile = "graph.temp";
+    int index;
+    int c;
     struct timeval  tv1, tv2;
     gettimeofday(&tv1, NULL);
-    FILE* graph = fopen("graph.temp", "w");
+    while ((c = getopt (argc, argv, "a:c:d:b:")) != -1)
+    switch (c) {
+        case 'a':
+            dfile = optarg;
+            break;
+        case 'b':
+            reqMae = atof(optarg);
+            break;
+        case 'c':
+            ngraph = optarg;
+            break;
+        case 'd':
+            ofile = optarg;
+            break;
+        case '?':
+            if (optopt == 'c' || optopt == 'a' || optopt == 'b' || optopt == 'd')
+                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+            else
+                fprintf (stderr,"Unknown option character `\\x%x'.\n",optopt);
+                help();
+            return 1;
+      default:
+            help();
+    }
+    FILE* graph = fopen(ofile, "w");
     FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
 
-    InputOutput_t data = openData("dataset/fertility_Diagnosis_Data_Group1_4-1.txt");
+    InputOutput_t data = openData(dfile);
     InputOutput_t* trainTest = splitData(data);
 
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
@@ -94,9 +129,9 @@ int main() {
                                                      node->muladd, TRAINING_MAX, node->connections);
         }
 
-    } while (MAE_VAL > 0.25);
-
-    fprintf(gnuplotPipe, "plot 'graph.temp' with lines\n");
+    } while (MAE_VAL > reqMae);
+    //fprintf(gnuplotPipe, "set title %s\n",ngraph);
+    fprintf(gnuplotPipe, "plot '%s' with lines\n",ofile);
     fclose(gnuplotPipe);
     fclose(graph);
     printf("\n-After Training-\nMMSE Training: %f\n",
