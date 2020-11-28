@@ -12,7 +12,7 @@ typedef struct BiasWeights_t {
 
 typedef struct Node_t {
     BiasWeights_t biasWeights;
-    double* lr;
+    double* muladd;
     double* activatedVal;
     int connections;
 } Node_t;

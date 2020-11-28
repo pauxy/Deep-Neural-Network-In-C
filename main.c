@@ -41,9 +41,8 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
     ResultPrediction_t resPredict;
 
     resPredict.result = (double*)malloc(TESTING_MAX * sizeof(double));
-    resPredict.result = linearRegression(data.input, biasWeights, resPredict.result,
-                                         TESTING_MAX, ATTR_COLUMNS);
-    resPredict.result = sigmoid(resPredict.result, resPredict.result, TESTING_MAX);
+    resPredict.result = forwardPropagation(data.input, biasWeights, resPredict.result,
+                                           resPredict.result, TESTING_MAX, ATTR_COLUMNS);
 
     resPredict.prediction = (int*)malloc(TESTING_MAX * sizeof(int));
     for (int i = 0; i < TESTING_MAX; i++) {
@@ -68,16 +67,16 @@ int main() {
     Node_t* node = (Node_t*)malloc(sizeof(Node_t));
     node->connections = ATTR_COLUMNS;
     node->biasWeights = initBiasWeights(node->connections);
-    node->lr = (double*)malloc(TRAINING_MAX * sizeof(double));
+    node->muladd = (double*)malloc(TRAINING_MAX * sizeof(double));
     node->activatedVal = (double*)malloc(TRAINING_MAX * sizeof(double));
 
     int t = 0;
     MAE_VAL = 0.0;
 
     do {
-        node->lr = linearRegression(trainTest[0].input, node->biasWeights, node->lr,
-                                    TRAINING_MAX, node->connections);
-        node->activatedVal = sigmoid(node->lr, node->activatedVal, TRAINING_MAX);
+        node->activatedVal = forwardPropagation(trainTest[0].input, node->biasWeights,
+                                                node->muladd, node->activatedVal,
+                                                TRAINING_MAX, node->connections);
         MAE_VAL = meanAbsoluteValue(trainTest[0].output, node->activatedVal,
                                     TRAINING_MAX);
         if(t == 0) {
@@ -92,7 +91,7 @@ int main() {
         if (MAE_VAL > 0.25) {
             node->biasWeights = backwardsPropagation(trainTest[0].input, trainTest[0].output,
                                                      node->biasWeights, node->activatedVal,
-                                                     node->lr, TRAINING_MAX, node->connections);
+                                                     node->muladd, TRAINING_MAX, node->connections);
         }
 
     } while (MAE_VAL > 0.25);
@@ -121,7 +120,7 @@ int main() {
     free(trainTest[0].output);
     free(trainTest);
     free(node->biasWeights.weights);
-    free(node->lr);
+    free(node->muladd);
     free(node->activatedVal);
     free(resPredict.prediction);
     free(resPredict.result);

@@ -8,15 +8,41 @@
 #include "forwardprop.h"
 #include "mlp.h"
 
+double* matmuladd(double**, BiasWeights_t, double*, int, int);
+double sigmoid(double);
+
 /**
- * linearRegression(): Calculates linear regression for each iteration
+ * forwardPropagation(): [TODO:description]
+ * @input: [TODO:description]
+ * @biasWeights: [TODO:description]
+ * @muladd: [TODO:description]
+ * @activatedVal: [TODO:description]
+ * @batchSize: [TODO:description]
+ * @connections: [TODO:description]
  *
- * @input:             2D array of input from previous layer
- * @biasWeights:       Struct of bias and weights where the firest element is the bias and the
- * @lr:                Array of the calculated sum of weights, inputs and biases using formula
- *                     remaining elements are weights
- * @batchSize:         Size of batch
- * @connections:       Number of connections perceptron will have
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
+double* forwardPropagation(double** input, BiasWeights_t biasWeights, double* muladd,
+                           double* activatedVal, int batchSize, int connections) {
+    muladd = matmuladd(input, biasWeights, muladd, batchSize, connections);
+    for(int rows = 0; rows < batchSize; rows++) {
+        *(activatedVal + rows) = sigmoid(*(muladd + rows));
+    }
+
+    return activatedVal;
+}
+
+/**
+ * matmuladd():  Calculates linear regression for each iteration
+ *
+ * @input:       2D array of input from previous layer
+ * @biasWeights: Struct of bias and weights where the firest element is the bias and the
+ * @muladd:      Array of the calculated sum of weights, inputs and biases using formula
+ *               remaining elements are weights
+ * @batchSize:   Size of batch
+ * @connections: Number of connections perceptron will have
  *
  *
  * Part 2a
@@ -24,42 +50,36 @@
  * inputs and weights and vectors and bias is a scalar using formula
  * \overrightarrow{\textbf{w}}^{t} \cdot \overrightarrow{\textbf{x}}_{i} + b_{i}^{t}
  *
- * Return: double* lr
+ * Return: double* muladd
  */
-double* linearRegression(double** input, BiasWeights_t biasWeights, double* lr,
-                         int batchSize, int connections) {
+double* matmuladd(double** input, BiasWeights_t biasWeights, double* muladd,
+                  int batchSize, int connections) {
     for (int rows = 0; rows < batchSize; rows++) {
-        *(lr + rows) = 0; /* initialise to zero the var for the addition of columns in data */
+        *(muladd + rows) = 0; /* initialise to zero the var for the addition
+                                    of columns in data */
         for (int cols = 0; cols < connections; cols++) {
-            // printf("%f\n", *(lr + rows));
-            *(lr + rows) += ( *(biasWeights.weights + cols) *
+            // printf("%f\n", *(muladd + rows));
+            *(muladd + rows) += ( *(biasWeights.weights + cols) *
                     input[rows][cols]) + biasWeights.bias; /* adds to counter and appends to array
                                                               using lr fomula */
         }
     }
-    return lr;
+    return muladd;
 }
 
 
 /**
  * sigmoid():     Squashes input into double between 0-1
  *
- * @lr:           Array of calculated sum from linearRegression()
- * @batchSize:    Size of batch
- * @activatedVal: Array of lr after running sigmoid function
+ * @muladd:       Element of matmuladd()
  *
  *
  * Part 2b
- * Calculates the sigmoid activation function from the array output from linearRegression() for each
- * iteration using formula
+ * Calculates the sigmoid activation function
  * \frac{1}{1+e^{-z_{i}(t)}}
  *
- * Return: double* activatedVal
+ * Return: activated value after sigmoid function
  */
-double* sigmoid(double* lr, double* activatedVal, int batchSize) {
-    for(int rows = 0; rows < batchSize; rows++) {
-        *(activatedVal + rows) = 1.0 / (1.0 + exp(- *(lr + rows))); /* sigmoid formula
-                                                                       as provided */
-    }
-    return activatedVal;
+double sigmoid(double muladd) {
+    return 1.0 / (1.0 + exp(-muladd)); /* sigmoid formula as provided */
 }

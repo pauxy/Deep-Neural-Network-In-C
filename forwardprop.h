@@ -7,7 +7,6 @@
 
 #include "mlp.h"
 
-double* linearRegression(double**, BiasWeights_t, double*, int, int);
-double* sigmoid(double*, double*, int);
+double* forwardPropagation(double**, BiasWeights_t, double*, double*, int, int);
 
 #endif // FORWARDPROP_H
