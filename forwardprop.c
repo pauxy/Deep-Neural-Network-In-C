@@ -29,11 +29,12 @@
 double* linearRegression(double** input, BiasWeights_t biasWeights, double* lr,
                          int batchSize, int connections) {
     for (int rows = 0; rows < batchSize; rows++) {
-        *(lr + rows) = 0;                                /* initialise to zero the var for the addition of columns in data */
+        *(lr + rows) = 0; /* initialise to zero the var for the addition of columns in data */
         for (int cols = 0; cols < connections; cols++) {
             // printf("%f\n", *(lr + rows));
             *(lr + rows) += ( *(biasWeights.weights + cols) *
-                    input[rows][cols]) + biasWeights.bias; /* adds to counter and appends to array using lr fomula */
+                    input[rows][cols]) + biasWeights.bias; /* adds to counter and appends to array
+                                                              using lr fomula */
         }
     }
     return lr;
@@ -56,8 +57,9 @@ double* linearRegression(double** input, BiasWeights_t biasWeights, double* lr,
  * Return: double* activatedVal
  */
 double* sigmoid(double* lr, double* activatedVal, int batchSize) {
-    for(int rows = 0; rows < batchSize; rows++){
-        *(activatedVal + rows) = 1.0 / (1.0 + exp(- *(lr + rows))); /* sigmoid formula as provided */
+    for(int rows = 0; rows < batchSize; rows++) {
+        *(activatedVal + rows) = 1.0 / (1.0 + exp(- *(lr + rows))); /* sigmoid formula
+                                                                       as provided */
     }
     return activatedVal;
 }

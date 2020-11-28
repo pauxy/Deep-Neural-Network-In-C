@@ -46,7 +46,7 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
     resPredict.result = sigmoid(resPredict.result, resPredict.result, TESTING_MAX);
 
     resPredict.prediction = (int*)malloc(TESTING_MAX * sizeof(int));
-    for (int i = 0; i < TESTING_MAX; i++){
+    for (int i = 0; i < TESTING_MAX; i++) {
         if ( *(resPredict.result + i) > 0.5)
             *(resPredict.prediction + i) = 1;
         else
@@ -59,7 +59,7 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
 int main() {
     struct timeval  tv1, tv2;
     gettimeofday(&tv1, NULL);
-    FILE* graph = fopen("graph.temp","w");
+    FILE* graph = fopen("graph.temp", "w");
     FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
 
     InputOutput_t data = openData("dataset/fertility_Diagnosis_Data_Group1_4-1.txt");
@@ -80,17 +80,19 @@ int main() {
         node->activatedVal = sigmoid(node->lr, node->activatedVal, TRAINING_MAX);
         MAE_VAL = meanAbsoluteValue(trainTest[0].output, node->activatedVal,
                                     TRAINING_MAX);
-        if(t==0){
-            printf("-Before Training-\nMMSE Training: %f\n", minMeanSquareError(trainTest[0].output, node->activatedVal,TRAINING_MAX));
-            printf("MMSE Testing: %f\n", minMeanSquareError(trainTest[1].output,node->activatedVal,TESTING_MAX));
+        if(t == 0) {
+            printf("-Before Training-\nMMSE Training: %f\n",
+                    minMeanSquareError(trainTest[0].output, node->activatedVal, TRAINING_MAX));
+            printf("MMSE Testing: %f\n",
+                    minMeanSquareError(trainTest[1].output, node->activatedVal, TESTING_MAX));
         }
         t++;
 
         fprintf(graph, "%i %lf \n", t, MAE_VAL);
         if (MAE_VAL > 0.25) {
-            node->biasWeights = backwardsPropagation(trainTest[0].input, trainTest[0].output, node->biasWeights,
-                                                     node->activatedVal, node->lr,
-                                                     TRAINING_MAX, node->connections);
+            node->biasWeights = backwardsPropagation(trainTest[0].input, trainTest[0].output,
+                                                     node->biasWeights, node->activatedVal,
+                                                     node->lr, TRAINING_MAX, node->connections);
         }
 
     } while (MAE_VAL > 0.25);
@@ -98,8 +100,10 @@ int main() {
     fprintf(gnuplotPipe, "plot 'graph.temp' with lines\n");
     fclose(gnuplotPipe);
     fclose(graph);
-    printf("\n-After Training-\nMMSE Training: %f\n", minMeanSquareError(trainTest[0].output, node->activatedVal,TRAINING_MAX));
-    printf("MMSE Testing: %f\n", minMeanSquareError(trainTest[1].output, node->activatedVal,TESTING_MAX));
+    printf("\n-After Training-\nMMSE Training: %f\n",
+            minMeanSquareError(trainTest[0].output, node->activatedVal, TRAINING_MAX));
+    printf("MMSE Testing: %f\n",
+            minMeanSquareError(trainTest[1].output, node->activatedVal, TESTING_MAX));
     ResultPrediction_t resPredict = predict(trainTest[1], node->biasWeights);
     char** cm = confusionMatrix(trainTest[1].output, resPredict.prediction, TESTING_MAX);
 

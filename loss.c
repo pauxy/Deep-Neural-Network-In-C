@@ -11,7 +11,7 @@
 /**
  * meanAbsoluteValue(): Calculates MAE for each iteration
  *
- * @data:               Attributes from dataset
+ * @expectedOutput:     Correct output value from dataset
  * @activatedVal:       Activated values passed from the sigmoid function
  * @batchSize:          Size of data in rows
  *
@@ -28,7 +28,8 @@ double meanAbsoluteValue(int* expectedOutput, double* activatedVal, int batchSiz
     double total = 0.0;
     for (int rows = 0; rows < batchSize; rows++) {
         total += fabs( *(activatedVal + rows) -
-                expectedOutput[rows]); /* formula provided for MAE, calcadds everyvalue to be divided in line 32 */
+                expectedOutput[rows]); /* formula provided for MAE, calcadds everyvalue to be
+                                          divided in line 32 */
     }
     return total / batchSize;
 }
@@ -37,7 +38,7 @@ double meanAbsoluteValue(int* expectedOutput, double* activatedVal, int batchSiz
 /**
  * minMeanSquareError(): Calculates the minimum average of the squares of errors
  *
- * @data:                Attributes from dataset
+ * @expectedOutput:      Correct output value from dataset
  * @activatedVal:        Activated values passed from the sigmoid function
  * @batchSize:           Size of data in rows
  *
@@ -64,7 +65,7 @@ double minMeanSquareError(int* expectedOutput, double* activatedVal, int batchSi
  *
  * @data:             Attributes from dataset
  * @res:              Result from prediction
- * @batchSize:              Size of data in rows
+ * @batchSize:        Size of data in rows
  *
  * Part 2e
  * Determines the four classes
@@ -91,11 +92,11 @@ char** confusionMatrix(int* expectedOutput, int* res, int batchSize) {
                 TN++;
                 TP--;
             }
-                                         /* origin == 1 true positive */
+        /* origin == 1 true positive */
         } else {
             con = "FP";
-            FP++;                  /* false positive */
-            if (origin == 0){
+            FP++; /* false positive */
+            if (origin == 0) {
                 con = "FN"; /* false negative */
                 FN++;
                 FP--;
@@ -103,6 +104,6 @@ char** confusionMatrix(int* expectedOutput, int* res, int batchSize) {
         }
         *(confusion + i) = con;
     }
-    printf("\n-Confusion Matrix-\nTrue Positive: %d\nTrue Negative: %d\nFalse Positive: %d\nFalse Negative: %d\n",TP,TN,FP,FN);
+    printf("\n-Confusion Matrix-\nTrue Positive: %d\nTrue Negative: %d\nFalse Positive: %d\nFalse Negative: %d\n", TP, TN, FP, FN);
     return confusion;
 }

@@ -20,13 +20,13 @@ const int ATTR_COLUMNS = DATA_COLUMNS - 1; /* columns exclusive of results */
  * @filename:  Name of file dataset is located
  *
  * @row:       Row in dataset
- * @data       Column/Attribute in dataset
+ * @data       Struct of separated inputs and outputs
  * @line       Buffer to read each line in file
  * @count      Counter for inserting attribute value into correct element in array
  * @token      Placeholder for using ',' as delimeter
  * @col        Column current loop is on
  *
- * Return:     2D array of attributes
+ * Return:     Struct with 2D and 1D array of inputs and outputs
  */
 InputOutput_t openData(char* filename) {
     FILE* filelist = fopen(filename, "r");
