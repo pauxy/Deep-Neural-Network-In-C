@@ -23,8 +23,9 @@ typedef struct Node_t {
 typedef struct Layer_t {
     Node_t* nodes;
     int numOfNodes;
-    Layer_t* next;
-    Layer_t* prev;
+    double** value;
+    struct Layer_t* next;
+    struct Layer_t* prev;
 } Layer_t;
 
 Layer_t genLayer(int, int, InputOutput_t, Layer_t*, Layer_t*);
