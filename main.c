@@ -67,14 +67,15 @@ void help(){
 
 int main(int argc, char **argv) {
     srand(time(NULL));
+    int c;
+    struct timeval  tv1, tv2;
+    gettimeofday(&tv1, NULL);
+
     double reqMae = 0.25;
     char *ngraph = "perceptron";
     char *dfile = "dataset/fertility_Diagnosis_Data_Group1_4-1.txt";
     char *ofile = "graph.temp";
 
-    int c;
-    struct timeval  tv1, tv2;
-    gettimeofday(&tv1, NULL);
     while ((c = getopt (argc, argv, "m:i:g:o:h")) != -1)
     switch (c) {
         case 'm':
@@ -105,10 +106,13 @@ int main(int argc, char **argv) {
 
     InputOutput_t data = openData(dfile);
     InputOutput_t* trainTest = splitData(data);
-    int layernum=1;
-    int nodes=3;
 
-    Node_t* node = trainNetwork(layernum,nodes,trainTest[0],reqMae ,graph,TRAINING_MAX);
+    int numOfHiddenLayers = 2;
+    int* nodes = (int*)malloc(numOfHiddenLayers * sizeof(int));
+    nodes[0] = 3;
+    nodes[1] = 4;
+
+    Node_t* node = trainNetwork(numOfHiddenLayers, nodes, trainTest[0], reqMae, graph);
 
     fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
     fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);

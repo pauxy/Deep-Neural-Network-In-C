@@ -12,25 +12,27 @@
 #include "error.h"
 #include "mlp.h"
 
-BiasWeights_t initBiasWeights(int inputFields) {
+BiasWeights_t initBiasWeights(int connections) {
     BiasWeights_t biasWeights;
-    biasWeights.weights = (double*)malloc(inputFields * sizeof(double));
+    biasWeights.weights = (double*)malloc(connections * sizeof(double));
     biasWeights.bias = 0;
 
-    
-    for (int cols = 0; cols < inputFields; cols++) {
+
+    for (int cols = 0; cols < connections; cols++) {
         *(biasWeights.weights + cols) = (double)rand() /
             (double)RAND_MAX * 2.0 - 1.0; /* Randomly assign weights and bias */
     }
     return biasWeights;
 }
 
-Layer_t genLayer(int nodes, int conn, InputOutput_t trainTest, Layer_t* next, Layer_t* prev) {
+
+Layer_t genLayer(int nodes, int conn, Layer_t* next, Layer_t* prev) {
     Layer_t layer;
     layer.numOfNodes = nodes;
     layer.nodes = (Node_t*)malloc(nodes * sizeof(Node_t));
     layer.next = next;
     layer.prev = prev;
+
     for (int i = 0; i < nodes; i++) {
         (layer.nodes + i)->connections = conn;
         (layer.nodes + i)->biasWeights = initBiasWeights((layer.nodes + i)->connections);
@@ -38,75 +40,106 @@ Layer_t genLayer(int nodes, int conn, InputOutput_t trainTest, Layer_t* next, La
         (layer.nodes + i)->activatedVal = (double*)malloc(TRAINING_MAX * sizeof(double));
     }
 
-
     return layer;
 }
 
 
-
-double** trainLayer(Layer_t layer, double** input){
-    double** values = (double**)malloc(layer.numOfNodes*sizeof(double*));
-    for (int i = 0; i < layer.numOfNodes; i++){
-        forwardPropagation(input, (layer.nodes + i)->biasWeights,
-                                            (layer.nodes + i)->muladd, (layer.nodes + i)->activatedVal,
-                                            TRAINING_MAX, (layer.nodes + i)->connections);
-        *(values+i) = (layer.nodes + i)->activatedVal;
+double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOutput) {
+    for (int i = 0; i < layer.numOfNodes; i++) {
+        (layer.nodes + i)->activatedVal =  forwardPropagation(input, (layer.nodes + i)->biasWeights,
+                           (layer.nodes + i)->muladd, (layer.nodes + i)->activatedVal,
+                           TRAINING_MAX, (layer.nodes + i)->connections);
+        *(layerActivatedValOutput + i) = (layer.nodes + i)->activatedVal;
     }
-    return values;
 
+    double** transposedAV = (double**)malloc(TRAINING_MAX * sizeof(double*));
+
+    for (int row = 0; row < TRAINING_MAX; row++) {
+        transposedAV[row] = (double*)malloc(layer.numOfNodes * sizeof(double));
+        for (int col = 0; col < layer.numOfNodes; col++) {
+            transposedAV[row][col] = layerActivatedValOutput[col][row];
+        }
+    }
+
+    return transposedAV;
 }
 
-Node_t* trainNetwork(int layernum, int nodes, InputOutput_t trainTest,int minMae ,FILE* graph,int val) {
-    int conn=nodes;
-    double** values = (double**)malloc(nodes*sizeof(double*));
+
+Node_t* trainNetwork(int numOfHiddenLayers, int* nodes, InputOutput_t trainingData, int minMae, FILE* graph) {
     double MAE_VAL;
-    Layer_t* layers = (Layer_t*)malloc(layernum * sizeof(Layer_t));
+    int totalLayers = numOfHiddenLayers + 1;
 
-    for (int i = 0; i < layernum + 1; i++){
-        conn = nodes;
-        int nod = nodes;
-        if (i == 0){
-            conn = ATTR_COLUMNS;
-        }else if (i == layernum){
-            nod = 1;
+    /* Allocate memory for layers */
+    Layer_t* layers = (Layer_t*)malloc(totalLayers * sizeof(Layer_t));
+
+    int* connections = (int*)malloc(totalLayers * sizeof(int));
+    *connections = ATTR_COLUMNS;
+
+    int* genNodes = (int*)malloc(totalLayers * sizeof(int));
+
+    for (int i = 0; i < totalLayers; i++) {
+        // Generate int* of needed nodes and connections
+        if (i != numOfHiddenLayers) {
+            *(connections + i + 1) = *(nodes + i); // Append ATTR_COLUMNS to start of nodes pointer
+            *(genNodes + i) = *(nodes + i);
+        } else {
+            *(genNodes + i) = 1;
         }
-        Layer_t* next = i == layernum  ? NULL : (layers + i + 1);
+
+
+        Layer_t* next = i == numOfHiddenLayers ? NULL : (layers + i + 1);
         Layer_t* prev = i == 0 ? NULL : (layers + i - 1);
-        *(layers+i) = genLayer(nod, conn, trainTest, next, prev);
+
+        *(layers + i) = genLayer(genNodes[i], connections[i], next, prev);
+        (layers + i)->layerOutput = (double**)malloc(connections[i] * sizeof(double*));
     }
-    int t=0;
+
+    Layer_t outputLayer = *(layers + numOfHiddenLayers);
+
+    int t = 0;
+
     do {
-        if(t++ == 0) {
+        // Calculate before MMSE
+        if (t++ == 0) {
             printf("-Before Training-\nMMSE Training: %f\n",
-                    minMeanSquareError(trainTest.output, (layers + layernum - 1)->nodes->activatedVal,
-                                         TRAINING_MAX));
+                    minMeanSquareError(trainingData.output, outputLayer.nodes->activatedVal,
+                                       TRAINING_MAX));
             printf("MMSE Testing: %f\n",
-                    minMeanSquareError(trainTest.output, (layers + layernum - 1)->nodes->activatedVal,
-                                         TESTING_MAX));
+                    minMeanSquareError(trainingData.output, outputLayer.nodes->activatedVal, // TODO:testingData.output
+                                       TESTING_MAX));
         }
-        for (int i = 0; i<layernum; i++){
-                if(i==0) values=trainLayer(*(layers + i), trainTest.input);
-                else values=trainLayer(*(layers + i), values);
-                (layers + i)->value = values;
+
+        for (int i = 0; i < totalLayers; i++) {
+                if (i == 0) layers->layerOutput = trainLayer(*layers, trainingData.input,
+                                                             layers->layerOutput);
+                else (layers + i)->layerOutput = trainLayer(*(layers + i), (layers + i)->prev->layerOutput ,
+                                                            (layers + i)->layerOutput);
         }
 
 
-        fprintf(graph, "%i %lf \n", t, MAE_VAL);
-        MAE_VAL = meanAbsoluteValue(trainTest.output, (layers + layernum)->nodes->activatedVal,
+        MAE_VAL = meanAbsoluteValue(trainingData.output, outputLayer.nodes->activatedVal,
                                     TRAINING_MAX);
+        fprintf(graph, "%i %lf \n", t, MAE_VAL);
+
         if (MAE_VAL > minMae) {
-            for (int i = 0; i < layernum; i++){
-                Layer_t* curr=(layers + layernum - 1 - i);
-                for (int j = 0; j < curr->numOfNodes; i++){
-                    double** av = 0 == (curr->numOfNodes - 1) ? trainTest.input : (curr->prev)->value;
-                    (curr->nodes + j)->biasWeights = backwardsPropagation(av, trainTest.output, // constants
-                                                                        (curr->nodes+j)->biasWeights,((layers + layernum)->nodes)->activatedVal,
-                                                                        (curr->nodes+j)->muladd, TRAINING_MAX, (curr->nodes+j)->connections);
+            for (int i = 0; i < numOfHiddenLayers + 1; i++) {
+                Layer_t* currentLayer = layers + numOfHiddenLayers - i;
+                for (int j = 0; j < currentLayer->numOfNodes; j++) {
+
+                    double** av = trainingData.input;
+                    if (currentLayer->prev != NULL)
+                        av = currentLayer->prev->layerOutput;
+
+
+                    Node_t* currLayerNode = currentLayer->nodes + j;
+                    currLayerNode->biasWeights =
+                        backwardsPropagation(av, trainingData.output,
+                                             currLayerNode->biasWeights, outputLayer.nodes->activatedVal,
+                                             currLayerNode->muladd, TRAINING_MAX, currLayerNode->connections);
                 }
-            
             }
         }
-
+        /* printf("%lf\n", MAE_VAL); */
     } while (MAE_VAL > minMae);
-    return (layers + layernum - 1)->nodes;
+    return outputLayer.nodes;
 }
