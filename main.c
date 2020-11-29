@@ -105,38 +105,10 @@ int main(int argc, char **argv) {
 
     InputOutput_t data = openData(dfile);
     InputOutput_t* trainTest = splitData(data);
+    int layernum=1;
+    int nodes=1;
 
-    Node_t* node = (Node_t*)malloc(sizeof(Node_t));
-    node->connections = ATTR_COLUMNS;
-    node->biasWeights = initBiasWeights(node->connections);
-    node->muladd = (double*)malloc(TRAINING_MAX * sizeof(double));
-    node->activatedVal = (double*)malloc(TRAINING_MAX * sizeof(double));
-
-    int t = 0;
-    MAE_VAL = 0.0;
-
-    do {
-        node->activatedVal = forwardPropagation(trainTest[0].input, node->biasWeights,
-                                                node->muladd, node->activatedVal,
-                                                TRAINING_MAX, node->connections);
-        MAE_VAL = meanAbsoluteValue(trainTest[0].output, node->activatedVal,
-                                    TRAINING_MAX);
-        if(t == 0) {
-            printf("-Before Training-\nMMSE Training: %f\n",
-                    minMeanSquareError(trainTest[0].output, node->activatedVal, TRAINING_MAX));
-            printf("MMSE Testing: %f\n",
-                    minMeanSquareError(trainTest[1].output, node->activatedVal, TESTING_MAX));
-        }
-        t++;
-
-        fprintf(graph, "%i %lf \n", t, MAE_VAL);
-        if (MAE_VAL > 0.25) {
-            node->biasWeights = backwardsPropagation(trainTest[0].input, trainTest[0].output,
-                                                     node->biasWeights, node->activatedVal,
-                                                     node->muladd, TRAINING_MAX, node->connections);
-        }
-
-    } while (MAE_VAL > reqMae);
+    Node_t* node = trainNetwork(layernum,nodes,trainTest[0],reqMae ,graph,TRAINING_MAX);
 
     fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
     fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);
