@@ -45,9 +45,9 @@ InputOutput_t openData(char* filename) {
     int count = 0;
     while (fgets(line, sizeof(line), filelist) != NULL) { /* while file still has lines */
         char* token = strtok(line, ",");                    /* gets first data between ',' */
-        data.input[count] = (double*)malloc(sizeof(double));
-        for (int col = 0; col < DATA_COLUMNS; col++) {
+        data.input[count] = (double*)malloc((DATA_COLUMNS - 1) * sizeof(double));
 
+        for (int col = 0; col < DATA_COLUMNS; col++) {
             if (col != 0) token = strtok(NULL, ",");        /* gets remaining data between ',' */
             if (col == DATA_COLUMNS - 1) {
                 data.output[count] = atoi(token);

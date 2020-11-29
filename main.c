@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
     }
 
     FILE* graph = fopen(ofile, "w");
-    FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
+    FILE * gnuplotPipe = popen("gnuplot -persistent > /dev/null 2>&1", "w");
 
     InputOutput_t data = openData(dfile);
     InputOutput_t* trainTest = splitData(data);
