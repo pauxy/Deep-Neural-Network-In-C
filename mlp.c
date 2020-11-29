@@ -17,7 +17,7 @@ BiasWeights_t initBiasWeights(int inputFields) {
     biasWeights.weights = (double*)malloc(inputFields * sizeof(double));
     biasWeights.bias = 0;
 
-    srand(time(NULL));
+    
     for (int cols = 0; cols < inputFields; cols++) {
         *(biasWeights.weights + cols) = (double)rand() /
             (double)RAND_MAX * 2.0 - 1.0; /* Randomly assign weights and bias */
@@ -63,11 +63,16 @@ Node_t* trainNetwork(int layernum, int nodes, InputOutput_t trainTest,int minMae
     Layer_t* layers = (Layer_t*)malloc(layernum * sizeof(Layer_t));
 
     for (int i = 0; i < layernum + 1; i++){
-        conn = i == 0 ? ATTR_COLUMNS : nodes;
-        conn = i == layernum - 1 ? 1 : nodes;
-        Layer_t* next = i == layernum - 1 ? NULL : (layers + i + 1);
+        conn = nodes;
+        int nod = nodes;
+        if (i == 0){
+            conn = ATTR_COLUMNS;
+        }else if (i == layernum){
+            nod = 1;
+        }
+        Layer_t* next = i == layernum  ? NULL : (layers + i + 1);
         Layer_t* prev = i == 0 ? NULL : (layers + i - 1);
-        *(layers+i) = genLayer(nodes, conn, trainTest, next, prev);
+        *(layers+i) = genLayer(nod, conn, trainTest, next, prev);
     }
     int t=0;
     do {

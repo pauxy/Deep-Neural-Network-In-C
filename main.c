@@ -66,7 +66,7 @@ void help(){
 
 
 int main(int argc, char **argv) {
-
+    srand(time(NULL));
     double reqMae = 0.25;
     char *ngraph = "perceptron";
     char *dfile = "dataset/fertility_Diagnosis_Data_Group1_4-1.txt";
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
     InputOutput_t data = openData(dfile);
     InputOutput_t* trainTest = splitData(data);
     int layernum=1;
-    int nodes=1;
+    int nodes=3;
 
     Node_t* node = trainNetwork(layernum,nodes,trainTest[0],reqMae ,graph,TRAINING_MAX);
 

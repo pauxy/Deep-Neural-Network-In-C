@@ -57,8 +57,8 @@ double* matmuladd(double** input, BiasWeights_t biasWeights, double* muladd,
     for (int rows = 0; rows < batchSize; rows++) {
         *(muladd + rows) = 0; /* initialise to zero the var for the addition
                                     of columns in data */
+        puts("hah");
         for (int cols = 0; cols < connections; cols++) {
-            // printf("%f\n", *(muladd + rows));
             *(muladd + rows) += ( *(biasWeights.weights + cols) *
                     input[rows][cols]) + biasWeights.bias; /* adds to counter and appends to array
                                                               using lr fomula */
