@@ -19,3 +19,6 @@ with the dataset, you will be required to go through the whole cycle of problem 
 problem analysis, algorithm and pseudocode design. You will implement with testing and
 demonstrate your classification/regression algorithm in C programming.
 ```
+
+## Compiling
+Do `make` to compile and `make clean` to clear files
