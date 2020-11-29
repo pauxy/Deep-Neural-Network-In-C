@@ -1,7 +1,7 @@
 PROGRAM_NAME = perceptron
 
 CC = clang
-CFLAGS = -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=c18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable
+CFLAGS = -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable
 DEPS = dataparser.h forwardprop.h backprop.h error.h mlp.h
 OBJ = main.o dataparser.o forwardprop.o backprop.o error.o mlp.o
 
