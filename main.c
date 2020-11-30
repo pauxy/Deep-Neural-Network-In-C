@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
     nodes[0] = 3;
     nodes[1] = 4;
 
-    Node_t* node = trainNetwork(numOfHiddenLayers, nodes, trainTest[0], reqMae, graph);
+    Node_t* node = trainNetwork(numOfHiddenLayers, nodes, trainTest, reqMae, graph);
 
     fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
     fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);

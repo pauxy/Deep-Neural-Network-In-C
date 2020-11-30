@@ -65,10 +65,11 @@ double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOut
 }
 
 
-Node_t* trainNetwork(int numOfHiddenLayers, int* nodes, InputOutput_t trainingData, double minMae, FILE* graph) {
+Node_t* trainNetwork(int numOfHiddenLayers, int* nodes, InputOutput_t* trainTest, double minMae, FILE* graph) {
     double MAE_VAL;
     int totalLayers = numOfHiddenLayers + 1;
-
+    InputOutput_t trainingData = *trainTest;
+    InputOutput_t testingData = *(trainTest+1);
     /* Allocate memory for layers */
     Layer_t* layers = (Layer_t*)malloc(totalLayers * sizeof(Layer_t));
 
@@ -105,7 +106,7 @@ Node_t* trainNetwork(int numOfHiddenLayers, int* nodes, InputOutput_t trainingDa
                     minMeanSquareError(trainingData.output, outputLayer.nodes->activatedVal,
                                        TRAINING_MAX));
             printf("MMSE Testing: %f\n",
-                    minMeanSquareError(trainingData.output, outputLayer.nodes->activatedVal, // TODO:testingData.output
+                    minMeanSquareError(testingData.output, outputLayer.nodes->activatedVal, // TODO:testingData.output
                                        TESTING_MAX));
         }
 
