@@ -55,13 +55,15 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
     }
     return resPredict;
 }
+
+
 void help(){
     puts("Perceptron command line input help.");
     puts("Options are:");
-    puts("-a <file name> : sets input file");
-    puts("-b <mae value> : sets new minimum mae value");
-    puts("-c <graph name> : sets new graph name");
-    puts("-d <file name> : sets new output file name");
+    puts("-m <mae value> : sets new minimum mae value");
+    puts("-i <file name> : sets input file");
+    puts("-g <graph name> : sets new graph name");
+    puts("-o <file name> : sets new output file name");
 }
 
 
@@ -113,17 +115,17 @@ int main(int argc, char **argv) {
     nodes[1] = 4;
 
     Node_t* node = trainNetwork(numOfHiddenLayers, nodes, trainTest, reqMae, graph);
-
-    fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
-    fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);
-    fclose(gnuplotPipe);
-    fclose(graph);
     printf("\n-After Training-\nMMSE Training: %f\n",
             minMeanSquareError(trainTest[0].output, node->activatedVal, TRAINING_MAX));
     printf("MMSE Testing: %f\n",
             minMeanSquareError(trainTest[1].output, node->activatedVal, TESTING_MAX));
     ResultPrediction_t resPredict = predict(trainTest[1], node->biasWeights);
     char** cm = confusionMatrix(trainTest[1].output, resPredict.prediction, TESTING_MAX);
+
+    fclose(graph);
+    fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
+    fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);
+    fclose(gnuplotPipe);
 
     gettimeofday(&tv2, NULL);
     printf ("\nTotal time = %f seconds\n",
