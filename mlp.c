@@ -65,7 +65,7 @@ double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOut
 }
 
 
-Node_t* trainNetwork(int numOfHiddenLayers, int* nodes, InputOutput_t trainingData, int minMae, FILE* graph) {
+Node_t* trainNetwork(int numOfHiddenLayers, int* nodes, InputOutput_t trainingData, double minMae, FILE* graph) {
     double MAE_VAL;
     int totalLayers = numOfHiddenLayers + 1;
 
@@ -139,7 +139,6 @@ Node_t* trainNetwork(int numOfHiddenLayers, int* nodes, InputOutput_t trainingDa
                 }
             }
         }
-        /* printf("%lf\n", MAE_VAL); */
     } while (MAE_VAL > minMae);
     return outputLayer.nodes;
 }
