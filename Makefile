@@ -1,4 +1,4 @@
-PROGRAM_NAME = perceptron
+PROGRAM_NAME = mlperceptron
 
 CC = clang
 CFLAGS = -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable
