@@ -8,11 +8,28 @@
 
 #include "dataparser.h"
 
-const int TRAINING_MAX = 90;
-const int TESTING_MAX = 10;
-const int DATA_COLUMNS = 10;
 const int DATA_ROWS = 100;
+const int TRAINING_MAX = 90;
+const int TESTING_MAX = DATA_ROWS - TRAINING_MAX;
+const int DATA_COLUMNS = 10;
 const int ATTR_COLUMNS = DATA_COLUMNS - 1; /* columns exclusive of results */
+
+InputOutput_t* splitData(InputOutput_t data) {
+    InputOutput_t training;
+    training.input = data.input;
+    training.output = data.output;
+
+    InputOutput_t testing;
+    testing.input = data.input + TRAINING_MAX;
+    testing.output = data.output + TRAINING_MAX;
+
+    InputOutput_t* split = (InputOutput_t*)malloc(2 * sizeof(InputOutput_t));
+    split[0] = training;
+    split[1] = testing;
+
+    return split;
+}
+
 
 /**
  * openData(): Opens dataset file and convert into 2D array
@@ -32,7 +49,7 @@ InputOutput_t openData(char* filename) {
     FILE* filelist = fopen(filename, "r");
     /* Authored by: Germaine Wong */
     if (filelist == NULL) { /* check if file exist */
-        fprintf(stderr, "File could not be opened");
+        fprintf(stderr, "File could not be opened\n");
         exit(1);
     }
     /* ~ end ~ */

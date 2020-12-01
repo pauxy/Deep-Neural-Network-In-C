@@ -5,8 +5,8 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
-
 
 #include "dataparser.h"
 #include "forwardprop.h"
@@ -14,25 +14,8 @@
 #include "error.h"
 #include "mlp.h"
 
-
-double MAE_VAL;
-
-InputOutput_t* splitData(InputOutput_t data) {
-    InputOutput_t training;
-    training.input = data.input;
-    training.output = data.output;
-
-    InputOutput_t testing;
-    testing.input = data.input + TRAINING_MAX;
-    testing.output = data.output + TRAINING_MAX;
-
-    InputOutput_t* split = (InputOutput_t*)malloc(2 * sizeof(InputOutput_t));
-    split[0] = training;
-    split[1] = testing;
-
-    return split;
-}
-
+#define true 1
+#define false 0
 
 typedef struct ResultPrediction_t {
     double* result;
@@ -57,51 +40,115 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
 }
 
 
-void help(){
+void help () {
     puts("Perceptron command line input help.");
     puts("Options are:");
-    puts("-m <mae value> : sets new minimum mae value");
-    puts("-i <file name> : sets input file");
-    puts("-g <graph name> : sets new graph name");
-    puts("-o <file name> : sets new output file name");
+    puts("-m <mae value> : sets new minimum mae value (default: 0.25)");
+    puts("-i <file name> : sets input file (default: dataset/fertility_Diagnosis_Data_Group1_4-1.txt)");
+    puts("-g <graph name> : sets new graph name (default: Mean Average Error)");
+    puts("-o <file name> : sets new output file name (default: graph.temp)");
+    puts("-l <no of hidden layer> : sets number of hidden layers (default: 2)");
+    puts("-n <nodes per hidden layer> : sets nodes per hidden layer (default: 3,4)");
+}
+
+
+int checkMaeArg(double reqMae) {
+    if (reqMae < 0.2 || reqMae > 1.0) {
+        fprintf(stderr, "Please choose a MAE value between 0.2 to 1.0\n");
+        return false;
+    }
+    return true;
+}
+
+
+int checkHiddenLayerArg(int numHiddenLayers) {
+    if (numHiddenLayers < 0 || numHiddenLayers > 10) {
+        fprintf(stderr, "Please choose number of hidden layers between 0 to 10\n");
+        return false;
+    }
+    return true;
+}
+
+
+int* checkNodes(char* option, int numHiddenLayers) {
+    int* nodes = (int*)malloc(numHiddenLayers * sizeof(int));
+    char* noNodes = strtok(option, ",");
+    int i = 0;
+    while (noNodes != NULL && i < numHiddenLayers) {
+        nodes[i] = atoi(noNodes);
+        if (nodes[i] < 1 || nodes[i] > 10) {
+            fprintf(stderr, "Please choose a number of hidden layer nodes between 1-10\n");
+            exit(1);
+        }
+        noNodes = strtok(NULL, ",");
+        i++;
+    }
+
+    if (i != numHiddenLayers) {
+        fprintf(stderr, "You entered %d values but have %d layers!\n", i, numHiddenLayers);
+        exit(1);
+    }
+    return nodes;
 }
 
 
 int main(int argc, char **argv) {
-    srand(time(NULL));
     int c;
     struct timeval  tv1, tv2;
     gettimeofday(&tv1, NULL);
 
     double reqMae = 0.25;
-    char *ngraph = "perceptron";
-    char *dfile = "dataset/fertility_Diagnosis_Data_Group1_4-1.txt";
-    char *ofile = "graph.temp";
+    char* ngraph = "Mean Average Error";
+    char* dfile = "dataset/fertility_Diagnosis_Data_Group1_4-1.txt";
+    char* ofile = "graph.temp";
+    int numHiddenLayers = 2;
+    char nodesPerLayer[64] = "3,4";
+    int* nodes = NULL;
 
-    while ((c = getopt (argc, argv, "m:i:g:o:h")) != -1)
+    while ((c = getopt(argc, argv, "m:i:g:o:l:n:h")) != -1)
     switch (c) {
         case 'm':
             reqMae = atof(optarg);
             break;
         case 'i':
-            dfile = optarg;
+            dfile = (char*)malloc(strlen(optarg) + 1);
+            strcpy(dfile, optarg);
             break;
         case 'g':
-            ngraph = optarg;
+            ngraph = (char*)malloc(strlen(optarg) + 1);
+            strcpy(ngraph, optarg);
             break;
         case 'o':
-            ofile = optarg;
+            ofile = (char*)malloc(strlen(optarg) + 1);
+            strcpy(ofile, optarg);
             break;
-        case '?':
-            if (optopt == 'm' || optopt == 'i' || optopt == 'g' || optopt == 'o')
-                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-            else
-                help();
-            return 1;
-      default:
+        case 'l':
+            numHiddenLayers = atoi(optarg);
+            break;
+        case 'n':
+            strncpy(nodesPerLayer, optarg, sizeof(nodesPerLayer) - 1);
+            break;
+        case 'h':
             help();
             return 0;
+      default:
+            help();
+            return 1;
     }
+
+    if (!(checkMaeArg(reqMae) && checkHiddenLayerArg(numHiddenLayers))) return 1;
+    if (numHiddenLayers != 0) nodes = checkNodes(nodesPerLayer, numHiddenLayers);
+
+    /* Print number of hidden layers */
+    puts("-Layers in feed-forward neural network-");
+    puts("Input Layer: 9 node(s)");
+    for (int i = 0; i < numHiddenLayers; i++) {
+        printf("Hidden Layer %d: %d node(s)\n", i + 1, nodes[i]);
+    }
+    puts("Output Layer: 1 node(s)\n");
+
+    puts("-Required MAE to end training-");
+    printf("MAE: %lf\n\n", reqMae);
 
     FILE* graph = fopen(ofile, "w");
     FILE * gnuplotPipe = popen("gnuplot -persistent > /dev/null 2>&1", "w");
@@ -109,12 +156,7 @@ int main(int argc, char **argv) {
     InputOutput_t data = openData(dfile);
     InputOutput_t* trainTest = splitData(data);
 
-    int numOfHiddenLayers = 2;
-    int* nodes = (int*)malloc(numOfHiddenLayers * sizeof(int));
-    nodes[0] = 3;
-    nodes[1] = 4;
-
-    Node_t* node = trainNetwork(numOfHiddenLayers, nodes, trainTest, reqMae, graph);
+    Node_t* node = trainNetwork(numHiddenLayers, nodes, trainTest, reqMae, graph);
     printf("\n-After Training-\nMMSE Training: %f\n",
             minMeanSquareError(trainTest[0].output, node->activatedVal, TRAINING_MAX));
     printf("MMSE Testing: %f\n",
@@ -146,5 +188,6 @@ int main(int argc, char **argv) {
     free(resPredict.prediction);
     free(resPredict.result);
     free(cm);
+
     return 0;
 }
