@@ -14,6 +14,18 @@ const int TESTING_MAX = DATA_ROWS - TRAINING_MAX;
 const int DATA_COLUMNS = 10;
 const int ATTR_COLUMNS = DATA_COLUMNS - 1; /* columns exclusive of results */
 
+/**
+ * splitData(): splits data into 2 InputOutput_t structs training and testing
+ *
+ * @data:      Raw data from file
+ *
+ * @training   first 90 values in data 
+ * @testing    last 10 values in data
+ * @split      pointer of InputOutput_t that stores 2 values, training first then testing
+ * 
+ * Return:     pointer with 2 InputOutput_t structs
+ */
+
 InputOutput_t* splitData(InputOutput_t data) {
     InputOutput_t training;
     training.input = data.input;
