@@ -17,29 +17,6 @@
 #define true 1
 #define false 0
 
-typedef struct ResultPrediction_t {
-    double* result;
-    int* prediction;
-} ResultPrediction_t;
-
-ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
-    ResultPrediction_t resPredict;
-
-    resPredict.result = (double*)malloc(TESTING_MAX * sizeof(double));
-    resPredict.result = forwardPropagation(data.input, biasWeights, resPredict.result,
-                                           resPredict.result, TESTING_MAX, ATTR_COLUMNS);
-
-    resPredict.prediction = (int*)malloc(TESTING_MAX * sizeof(int));
-    for (int i = 0; i < TESTING_MAX; i++) {
-        if ( *(resPredict.result + i) > 0.5)
-            *(resPredict.prediction + i) = 1;
-        else
-            *(resPredict.prediction + i) = 0;
-    }
-    return resPredict;
-}
-
-
 /**
  * help(): Prints help info
  */
@@ -186,19 +163,8 @@ int main(int argc, char **argv) {
     InputOutput_t data = openData(dfile);
     InputOutput_t* trainTest = splitData(data);
 
-    Node_t* node = trainNetwork(numHiddenLayers, nodes, trainTest, reqMae, graph);
-    printf("\n-After Training-\nMMSE Training: %f\n",
-            minMeanSquareError(trainTest[0].output, node->activatedVal, TRAINING_MAX));
-    printf("MMSE Testing: %f\n\n",
-            minMeanSquareError(trainTest[1].output, node->activatedVal, TESTING_MAX));
-    ResultPrediction_t resPredict = predict(trainTest[1], node->biasWeights);
-    int* cm = confusionMatrix(trainTest[1].output, resPredict.prediction, TESTING_MAX);
-
-    puts("-Confusion Matrix-");
-    printf("True Positive: %d\n", cm[0]);
-    printf("True Negative: %d\n", cm[1]);
-    printf("False Positive: %d\n", cm[2]);
-    printf("False Negative: %d\n", cm[3]);
+    Layer_t* network = trainNetwork(numHiddenLayers, nodes, trainTest, reqMae, graph);
+    testNetwork(network, trainTest, numHiddenLayers + 1);
 
     fclose(graph);
     fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
@@ -216,12 +182,6 @@ int main(int argc, char **argv) {
     free(trainTest[0].input);
     free(trainTest[0].output);
     free(trainTest);
-    free(node->biasWeights.weights);
-    free(node->muladd);
-    free(node->activatedVal);
-    free(resPredict.prediction);
-    free(resPredict.result);
-    free(cm);
 
     return 0;
 }

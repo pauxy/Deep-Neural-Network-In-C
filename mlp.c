@@ -13,12 +13,12 @@
 #include "mlp.h"
 
 /**
- * initBiasWeights(): [TODO:description]
- * @connections: [TODO:description]
+ * initBiasWeights(): Assigns random values to weights and bias to 0
+ * @connections: Number of connections weights required initialise
  *
- * [TODO:description]
+ * Sets bias to 0 and weights to a random double from -1 to 1
  *
- * Return: [TODO:description]
+ * Return: BiasWeights_t type containing both weights and bias
  */
 BiasWeights_t initBiasWeights(int connections) {
     BiasWeights_t biasWeights;
@@ -35,14 +35,15 @@ BiasWeights_t initBiasWeights(int connections) {
 
 
 /**
- * genLayer(): [TODO:description]
- * @nodesPerLayer: [TODO:description]
- * @conn: [TODO:description]
- * @prev: [TODO:description]
+ * genLayer():     Generates layer with nodes
+ * @nodesPerLayer: Number of nodes in layer
+ * @conn:          Connections going to each node from previous layer
+ * @prev:          Pointer to the previous layer
  *
- * [TODO:description]
+ * Sets connections, number of nodes, pointer to the previous layer in Layer_t
+ * Assigns memory and values to variables in nodes in layer
  *
- * Return: [TODO:description]
+ * Return: Data of one layer of nodes
  */
 Layer_t genLayer(int nodesPerLayer, int conn, Layer_t* prev) {
     Layer_t layer;
@@ -62,11 +63,15 @@ Layer_t genLayer(int nodesPerLayer, int conn, Layer_t* prev) {
 
 
 /**
- * {name}(): [TODO:description]
+ * trainLayer():             Trains each layer with forward prop
+ * @layer:                   Layer to train
+ * @input:                   The out put from the previous layer is the input for the current layer
+ * @layerActivatedValOutput: The untransposed 2D matrix of sigmoided values from forwardprop
  *
- * [TODO:description]
+ * Loops through nodes and calculates using the forward propagation algorithm
+ * Transposes output matrix to batch size x number of nodes
  *
- * Return: [TODO:description]
+ * Return: Transposed activation value from forwawrd propagation
  */
 double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOutput) {
     for (int i = 0; i < layer.numOfNodes; i++) {
@@ -89,13 +94,19 @@ double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOut
 
 
 /**
- * {name}(): [TODO:description]
+ * trainNetwork():   Trains the entire neural network
+ * @numHiddenLayers: List of hidden layers
+ * @nodesPerLayer:   An array of nodes for each layer
+ * @trainTest:       Dataset values
+ * @minMae:          Minimum MAE to hit before training stops
+ * @graph:           File pointer to plot values on graph
  *
- * [TODO:description]
+ * Loops through each layer, and for each layer loop through each node and conduct forward and
+ * backward propagation
  *
- * Return: [TODO:description]
+ * Return: Pointer to the output node
  */
-Node_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* trainTest,
+Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* trainTest,
                      double minMae, FILE* graph) {
     srand(time(NULL));
 
@@ -170,5 +181,58 @@ Node_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tra
         }
     } while (MAE_VAL > minMae);
 
-    return outputLayer->nodes;
+    return layers;
+}
+
+
+/**
+ * predict():    Uses calculates weights and biases against test data
+ * @data:        Testing dataset
+ * @biasWeights: Bias and Weights after training
+ *
+ * Return:       Array of prediction
+ */
+int* predict(InputOutput_t data, BiasWeights_t biasWeights) {
+    double* result = (double*)malloc(TESTING_MAX * sizeof(double));
+    result = forwardPropagation(data.input, biasWeights, result,
+                                result, TESTING_MAX, ATTR_COLUMNS);
+
+    int* prediction = (int*)malloc(TESTING_MAX * sizeof(int));
+    for (int i = 0; i < TESTING_MAX; i++) {
+        if ( *(result + i) > 0.5)
+            *(prediction + i) = 1;
+        else
+            *(prediction + i) = 0;
+    }
+    free(result);
+    return prediction;
+}
+
+
+/**
+ * testNetwork(): Test how effective neural network is
+ * @network:      All the information of the neural network
+ * @trainTest:    Dataset values
+ * @numLayers:    Number of layers in neural network
+ *
+ * Checks for MMSE, and displays confusion matrix
+ */
+void testNetwork(Layer_t* network, InputOutput_t* trainTest, int numLayers) {
+    double* finalAV = (network + numLayers - 1)->nodes->activatedVal;
+    BiasWeights_t finalBiasWeights = (network + numLayers - 1)->nodes->biasWeights;
+    printf("\n-After Training-\nMMSE Training: %f\n",
+            minMeanSquareError(trainTest[0].output, finalAV, TRAINING_MAX));
+    printf("MMSE Testing: %f\n\n",
+            minMeanSquareError(trainTest[1].output, finalAV, TESTING_MAX));
+    int* prediction = predict(trainTest[1], finalBiasWeights);
+    int* cm = confusionMatrix(trainTest[1].output, prediction, TESTING_MAX);
+
+    puts("-Confusion Matrix-");
+    printf("True Positive: %d\n", cm[0]);
+    printf("True Negative: %d\n", cm[1]);
+    printf("False Positive: %d\n", cm[2]);
+    printf("False Negative: %d\n", cm[3]);
+
+    free(prediction);
+    free(cm);
 }
