@@ -65,8 +65,8 @@ Layer_t genLayer(int nodesPerLayer, int conn, Layer_t* prev) {
 
 
 /**
- * trainLayer():             Trains each layer with forward prop
- * @layer:                   Layer to train
+ * trainTestLayer():         Trains or tests each layer with forward prop
+ * @layer:                   Layer to train or test
  * @input:                   The out put from the previous layer is the input for the current layer
  * @layerActivatedValOutput: The untransposed 2D matrix of sigmoided values from forwardprop
  *
@@ -75,20 +75,21 @@ Layer_t genLayer(int nodesPerLayer, int conn, Layer_t* prev) {
  *
  * Return: Transposed activation value from forward propagation
  */
-double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOutput) {
+double** trainTestLayer(Layer_t layer, double** input,
+                        double** layerActivatedValOutput, int batchSize) {
     for (int i = 0; i < layer.numOfNodes; i++) { /* Loops through nodes in layer */
         /* Runs forward propagation algorithm */
         (layer.nodes + i)->activatedVal =  forwardPropagation(input, (layer.nodes + i)->biasWeights,
                            (layer.nodes + i)->muladd, (layer.nodes + i)->activatedVal,
-                           TRAINING_MAX, (layer.nodes + i)->connections);
+                           batchSize, (layer.nodes + i)->connections);
 
         *(layerActivatedValOutput + i) = (layer.nodes + i)->activatedVal; /* Stores activated values
                                                                              in matrix */
     }
 
     /* Transposes matrix from numOfNodes x conections to connections x numOfNodes */
-    double** transposedAV = (double**)malloc(TRAINING_MAX * sizeof(double*));
-    for (int row = 0; row < TRAINING_MAX; row++) {
+    double** transposedAV = (double**)malloc(batchSize * sizeof(double*));
+    for (int row = 0; row < batchSize; row++) {
         transposedAV[row] = (double*)malloc(layer.numOfNodes * sizeof(double));
         for (int col = 0; col < layer.numOfNodes; col++) {
             transposedAV[row][col] = layerActivatedValOutput[col][row];
@@ -154,6 +155,14 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
 
     int t = 0;
     do {
+        /* Loops through layers and calculates forward prop */
+        for (int i = 0; i < totalLayers; i++) {
+            if (i == 0) layers->layerOutput = trainTestLayer(*layers, trainingData.input,
+                                                         layers->layerOutput, TRAINING_MAX);
+            else (layers + i)->layerOutput = trainTestLayer(*(layers + i), (layers + i)->prev->layerOutput ,
+                                                        (layers + i)->layerOutput, TRAINING_MAX);
+        }
+
         if (t++ == 0) {
             /* Gets MMSE before training */
             puts("-Before Training-");
@@ -164,15 +173,6 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
                     minMeanSquareError(testingData.output, outputLayer->nodes->activatedVal,
                                        TESTING_MAX));
         }
-
-        /* Loops through layers and calculates forward prop */
-        for (int i = 0; i < totalLayers; i++) {
-            if (i == 0) layers->layerOutput = trainLayer(*layers, trainingData.input,
-                                                         layers->layerOutput);
-            else (layers + i)->layerOutput = trainLayer(*(layers + i), (layers + i)->prev->layerOutput ,
-                                                        (layers + i)->layerOutput);
-        }
-
 
         MAE_VAL = meanAbsoluteValue(trainingData.output, outputLayer->nodes->activatedVal,
                                     TRAINING_MAX); /* Calculates MAE value */
@@ -212,11 +212,16 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
  *
  * Return:       Array of prediction
  */
-int* predict(InputOutput_t data, BiasWeights_t biasWeights) {
+int* predict(InputOutput_t testingData, Layer_t* network, int numLayers) {
+    for (int i = 0; i < numLayers; i++) {
+        if (i == 0) network->layerOutput = trainTestLayer(*network, testingData.input,
+                                                     network->layerOutput, TESTING_MAX);
+        else (network + i)->layerOutput = trainTestLayer(*(network + i), (network + i)->prev->layerOutput ,
+                                                    (network + i)->layerOutput, TESTING_MAX);
+    }
+
     /* Predicts result from given testing input */
-    double* result = (double*)malloc(TESTING_MAX * sizeof(double));
-    result = forwardPropagation(data.input, biasWeights, result,
-                                result, TESTING_MAX, ATTR_COLUMNS);
+    double* result = (network + numLayers - 1)->nodes->activatedVal;
 
     /* Generated predicted output where 1 is true and 0 is no */
     int* prediction = (int*)malloc(TESTING_MAX * sizeof(int));
@@ -240,18 +245,18 @@ int* predict(InputOutput_t data, BiasWeights_t biasWeights) {
  * Checks for MMSE, and displays confusion matrix
  */
 void testNetwork(Layer_t* network, InputOutput_t* trainTest, int numLayers) {
+    /* Gets confusion matrix after training */
+    int* prediction = predict(trainTest[1], network, numLayers);
+    int* cm = confusionMatrix(trainTest[1].output, prediction, TESTING_MAX);
+
+    /* Gets activated value of output node */
     double* finalAV = (network + numLayers - 1)->nodes->activatedVal;
-    BiasWeights_t finalBiasWeights = (network + numLayers - 1)->nodes->biasWeights;
 
     /* Calculates MMSE after training */
     printf("\n-After Training-\nMMSE Training: %f\n",
             minMeanSquareError(trainTest[0].output, finalAV, TRAINING_MAX));
     printf("MMSE Testing: %f\n\n",
             minMeanSquareError(trainTest[1].output, finalAV, TESTING_MAX));
-
-    /* Gets confusion matrix after training */
-    int* prediction = predict(trainTest[1], finalBiasWeights);
-    int* cm = confusionMatrix(trainTest[1].output, prediction, TESTING_MAX);
 
     puts("-Confusion Matrix-");
     printf("True Positive: %d\n", cm[0]);
