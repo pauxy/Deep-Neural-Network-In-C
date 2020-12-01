@@ -13,7 +13,6 @@
 #include "backprop.h"
 #include "error.h"
 #include "mlp.h"
-
 #define true 1
 #define false 0
 
@@ -166,7 +165,6 @@ int main(int argc, char **argv) {
 
     /* Generating gnuplot graph */
     FILE* graph = fopen(ofile, "w");
-    FILE * gnuplotPipe = popen("gnuplot -persistent > /dev/null 2>&1", "w"); /* Runs gnuplot */
 
     /* Gets attributes and results from dataset, and splits them into training and testing */
     InputOutput_t data = openData(dfile);
@@ -178,6 +176,7 @@ int main(int argc, char **argv) {
 
     /* Handles displaying graph using gnuplot */
     fclose(graph);
+    FILE* gnuplotPipe = popen("gnuplot -persistent", "w"); /* Runs gnuplot */
     fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
     fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);
     fclose(gnuplotPipe);
@@ -202,7 +201,6 @@ int main(int argc, char **argv) {
             free(currNode->muladd);
         }
         free(currLayer->layerOutput);
-        free(currLayer->nodes);
     }
     free(network);
 

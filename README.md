@@ -1,24 +1,28 @@
-# Machine Learning in C programming
+# Multi-Layered Perceptron
+A multi-layered perceptron used to determine semen fertility outcomes using give dataset and machine
+learning algorithms
 
-## Course Name Programming Methodology (PM)
+## Provided binaries
+- 32-bit Linux System: `mlperceptron-linux_i386.elf`
+- 64-bit Linux System: `mlperceptron-linux_x86-64.elf`
+- M1 MacOS System: `mlperceptron-macos11_arm64e.mach-o`
+- Intel MacOS System: `mlperceptron-macos11_x86-64.mach-o`
+- 32-bit Windows System: `mlperceptron-windows10_i686.exe`
+- 64-bit Windows System: `mlperceptron-windows10_x86-64.exe`
 
-**Deadline Time: 23:59 Date:** 29th **Nov 2020**
-
-Submit via SIT\_Xsite a Zip or compressed tar file containing your:
-- Source code directory (UoG-PM.tgz or UoG-PM.zip)
-- One PMReportSessionxGroupxx.pdf file
-- Group presentation video
-
-### Introduction
-
+## Compilation
 ```
-The goal of this AE exercise is to familiarize yourselves with the design, implementation
-and performance testing of C programming with the given medical dataset in the Internet
-of Things (IoT) edge computing machine learning landscape. Given the problem statement
-with the dataset, you will be required to go through the whole cycle of problem definition,
-problem analysis, algorithm and pseudocode design. You will implement with testing and
-demonstrate your classification/regression algorithm in C programming.
+$ make
+clang -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -I ./include -c src/main.c -o obj/main.o
+clang -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -I ./include -c src/dataparser.c -o obj/dataparser.o
+clang -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -I ./include -c src/forwardprop.c -o obj/forwardprop.o
+clang -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -I ./include -c src/backprop.c -o obj/backprop.o
+clang -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -I ./include -c src/error.c -o obj/error.o
+clang -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -I ./include -c src/mlp.c -o obj/mlp.o
+clang -o mlperceptron obj/main.o obj/dataparser.o obj/forwardprop.o obj/backprop.o obj/error.o obj/mlp.o -fsanitize=signed-integer-overflow -fsanitize=undefined -Ofast -std=gnu18 -Wall -Werror -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -I ./include -lm
+$
 ```
-
-## Compiling
-Do `make` to compile and `make clean` to clear files
+## Execution
+```
+$ mlperceptron
+```

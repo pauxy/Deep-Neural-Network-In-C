@@ -234,7 +234,6 @@ int* predict(InputOutput_t testingData, Layer_t* network, int numLayers) {
         else
             *(prediction + i) = 0;
     }
-    free(result);
     return prediction;
 }
 
