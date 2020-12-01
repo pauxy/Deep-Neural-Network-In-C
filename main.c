@@ -22,6 +22,15 @@ typedef struct ResultPrediction_t {
     int* prediction;
 } ResultPrediction_t;
 
+/**
+ * predict(): [TODO:description]
+ * @data: [TODO:description]
+ * @biasWeights: [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
     ResultPrediction_t resPredict;
 
@@ -40,6 +49,9 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
 }
 
 
+/**
+ * help(): [TODO:description]
+ */
 void help () {
     puts("Perceptron command line input help.");
     puts("Options are:");
@@ -52,6 +64,14 @@ void help () {
 }
 
 
+/**
+ * checkMaeArg(): [TODO:description]
+ * @reqMae: [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 int checkMaeArg(double reqMae) {
     if (reqMae < 0.2 || reqMae > 1.0) {
         fprintf(stderr, "Please choose a MAE value between 0.2 to 1.0\n");
@@ -61,6 +81,14 @@ int checkMaeArg(double reqMae) {
 }
 
 
+/**
+ * checkHiddenLayerArg(): [TODO:description]
+ * @numHiddenLayers: [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 int checkHiddenLayerArg(int numHiddenLayers) {
     if (numHiddenLayers < 0 || numHiddenLayers > 10) {
         fprintf(stderr, "Please choose number of hidden layers between 0 to 10\n");
@@ -70,6 +98,13 @@ int checkHiddenLayerArg(int numHiddenLayers) {
 }
 
 
+/**
+ * {name}(): [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 int* checkNodes(char* option, int numHiddenLayers) {
     int* nodes = (int*)malloc(numHiddenLayers * sizeof(int));
     char* noNodes = strtok(option, ",");
@@ -92,6 +127,15 @@ int* checkNodes(char* option, int numHiddenLayers) {
 }
 
 
+/**
+ * main(): [TODO:description]
+ * @argc: [TODO:description]
+ * @{name}: [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 int main(int argc, char **argv) {
     int c;
     struct timeval  tv1, tv2;

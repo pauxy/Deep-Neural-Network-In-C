@@ -1,4 +1,4 @@
-/* mlp.c -- 
+/* mlp.c -- Where all the training magic of neural network happens
  * Author: Lim Chun Yu
  */
 
@@ -12,6 +12,14 @@
 #include "error.h"
 #include "mlp.h"
 
+/**
+ * initBiasWeights(): [TODO:description]
+ * @connections: [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 BiasWeights_t initBiasWeights(int connections) {
     BiasWeights_t biasWeights;
     biasWeights.weights = (double*)malloc(connections * sizeof(double));
@@ -26,6 +34,16 @@ BiasWeights_t initBiasWeights(int connections) {
 }
 
 
+/**
+ * genLayer(): [TODO:description]
+ * @nodesPerLayer: [TODO:description]
+ * @conn: [TODO:description]
+ * @prev: [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 Layer_t genLayer(int nodesPerLayer, int conn, Layer_t* prev) {
     Layer_t layer;
     layer.numOfNodes = nodesPerLayer;
@@ -43,6 +61,13 @@ Layer_t genLayer(int nodesPerLayer, int conn, Layer_t* prev) {
 }
 
 
+/**
+ * {name}(): [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOutput) {
     for (int i = 0; i < layer.numOfNodes; i++) {
         (layer.nodes + i)->activatedVal =  forwardPropagation(input, (layer.nodes + i)->biasWeights,
@@ -63,6 +88,13 @@ double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOut
 }
 
 
+/**
+ * {name}(): [TODO:description]
+ *
+ * [TODO:description]
+ *
+ * Return: [TODO:description]
+ */
 Node_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* trainTest,
                      double minMae, FILE* graph) {
     srand(time(NULL));
