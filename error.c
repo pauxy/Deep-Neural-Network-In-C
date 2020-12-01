@@ -63,7 +63,7 @@ double minMeanSquareError(int* expectedOutput, double* activatedVal, int batchSi
 /**
  * confusionMatrix(): Evaluates prediction to true label
  *
- * @data:             Attributes from dataset
+ * @expectedOutput:   Attributes from dataset
  * @res:              Result from prediction
  * @batchSize:        Size of data in rows
  *
@@ -74,36 +74,32 @@ double minMeanSquareError(int* expectedOutput, double* activatedVal, int batchSi
  * - False Positive
  * - False Negative
  *
- * Return: Array of strings for confusion matrix
+ * Return: Array of int with matrix
  */
-char** confusionMatrix(int* expectedOutput, int* res, int batchSize) {
-    char** confusion = (char**)malloc(batchSize * 2 * sizeof(char*));
-    int TP = 0;
-    int TN = 0;
-    int FP = 0;
-    int FN = 0;
+int* confusionMatrix(int* expectedOutput, int* res, int batchSize) {
+    int* cm = (int*)malloc(4 * sizeof(int));
+    cm[0] = 0; // TP
+    cm[1] = 0; // TN
+    cm[2] = 0; // FP
+    cm[3] = 0; // FN
     for (int i = 0; i < batchSize; i++) {
         int origin = expectedOutput[i];
-        char* con = "TP";
         if (origin == res[i]) {
-            TP++;
+            cm[0]++;
             if (origin == 0) {
-                con = "TN"; /* true negative */
-                TN++;
-                TP--;
+                /* true negative */
+                cm[1]++;
+                cm[0]--;
             }
         /* origin == 1 true positive */
         } else {
-            con = "FP";
-            FP++; /* false positive */
+            cm[2]++; /* false positive */
             if (origin == 0) {
-                con = "FN"; /* false negative */
-                FN++;
-                FP--;
+                /* false negative */
+                cm[3]++;
+                cm[2]--;
             }
         }
-        *(confusion + i) = con;
     }
-    printf("\n-Confusion Matrix-\nTrue Positive: %d\nTrue Negative: %d\nFalse Positive: %d\nFalse Negative: %d\n", TP, TN, FP, FN);
-    return confusion;
+    return cm;
 }

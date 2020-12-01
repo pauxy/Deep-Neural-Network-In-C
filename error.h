@@ -7,6 +7,6 @@
 
 double meanAbsoluteValue(int*, double*, int);
 double minMeanSquareError(int*, double*, int);
-char** confusionMatrix(int*, int*, int);
+int* confusionMatrix(int*, int*, int);
 
 #endif // ERROR_H

@@ -11,12 +11,13 @@
 const double LEARNING_RATE = 0.05;
 
 /**
- * deSigmoid(): [TODO:description]
- * @matmul: [TODO:description]
+ * deSigmoid(): Calculates the differentiated sigmoid
+ * @muladd:     Value to be delta sigmoided
  *
- * [TODO:description]
+ * Calculated differentiated sigmoid using formula
+ * \frac{e^{z_i(t)}}{(1 + e^{z_i(t)})^2}
  *
- * Return: [TODO:description]
+ * Return: differentiated sigmoided value
  */
 double deSigmoid(double muladd) {
     return exp(muladd) / pow(1.0 + exp(muladd), 2.0);
@@ -24,13 +25,14 @@ double deSigmoid(double muladd) {
 
 
 /**
- * deError(): [TODO:description]
- * @activatedVal: [TODO:description]
- * @expectedOutput: [TODO:description]
+ * deError():       Calculates the error
+ * @activatedVal:   Predicted output
+ * @expectedOutput: Expected output
  *
- * [TODO:description]
+ * Calculates the differentiated square error
+ * \hat{y} - d_i
  *
- * Return: [TODO:description]
+ * Return: calculated error
  */
 double deError(double activatedVal, int expectedOutput) {
     return activatedVal - expectedOutput;
@@ -39,10 +41,11 @@ double deError(double activatedVal, int expectedOutput) {
 /**
  * backwardsPropagation(): Updates weights and biases for each iteration
  *
- * @biasWeights:           Struct of bias and weights where bias is the first element and the rest are weights
- * @activatedVal:          Activated values passed from the sigmoid function
  * @input:                 2D array of input from previous layer
- * @lr:                    Array of the calculated sum of weights, inputs and biases using formula
+ * @output                 Expected output from dataset
+ * @biasWeights:           Struct of bias and weights
+ * @activatedVal:          Calculated output from previous node
+ * @muladd:                Array of the calculated sum of weights, inputs and biases using formula
  * @batchSize:             Size of batch
  * @connections:           Number of connections perceptron will have
  *

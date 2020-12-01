@@ -22,15 +22,6 @@ typedef struct ResultPrediction_t {
     int* prediction;
 } ResultPrediction_t;
 
-/**
- * predict(): [TODO:description]
- * @data: [TODO:description]
- * @biasWeights: [TODO:description]
- *
- * [TODO:description]
- *
- * Return: [TODO:description]
- */
 ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
     ResultPrediction_t resPredict;
 
@@ -50,7 +41,7 @@ ResultPrediction_t predict(InputOutput_t data, BiasWeights_t biasWeights) {
 
 
 /**
- * help(): [TODO:description]
+ * help(): Prints help info
  */
 void help () {
     puts("Perceptron command line input help.");
@@ -65,12 +56,10 @@ void help () {
 
 
 /**
- * checkMaeArg(): [TODO:description]
- * @reqMae: [TODO:description]
+ * checkMaeArg(): Checks if MAE give by user is between 0.2 to 1.0
+ * @reqMae: Required MAE to stop training
  *
- * [TODO:description]
- *
- * Return: [TODO:description]
+ * Return: If check passes
  */
 int checkMaeArg(double reqMae) {
     if (reqMae < 0.2 || reqMae > 1.0) {
@@ -82,12 +71,10 @@ int checkMaeArg(double reqMae) {
 
 
 /**
- * checkHiddenLayerArg(): [TODO:description]
- * @numHiddenLayers: [TODO:description]
+ * checkHiddenLayerArg(): Checks if hidden layers given by user is between 0 to 10
+ * @numHiddenLayers: Number of hidden layers
  *
- * [TODO:description]
- *
- * Return: [TODO:description]
+ * Return: If check passes
  */
 int checkHiddenLayerArg(int numHiddenLayers) {
     if (numHiddenLayers < 0 || numHiddenLayers > 10) {
@@ -99,11 +86,14 @@ int checkHiddenLayerArg(int numHiddenLayers) {
 
 
 /**
- * {name}(): [TODO:description]
+ * checkNodes():     Creates an array of nodes per layer using ',' as delimeter
+ * @option:          String of command separated nodes per layer
+ * @numHiddenLayers: Number of hidden layers
  *
- * [TODO:description]
+ * Separates number of nodes per layer into an int*, checks if nodes per layer is between 0 to 10
+ * and checks if no more or less nodes per hidden layer is declared
  *
- * Return: [TODO:description]
+ * Return: int* of nodes per layer
  */
 int* checkNodes(char* option, int numHiddenLayers) {
     int* nodes = (int*)malloc(numHiddenLayers * sizeof(int));
@@ -128,13 +118,9 @@ int* checkNodes(char* option, int numHiddenLayers) {
 
 
 /**
- * main(): [TODO:description]
- * @argc: [TODO:description]
- * @{name}: [TODO:description]
+ * main(): The leader and the orchestrator
  *
- * [TODO:description]
- *
- * Return: [TODO:description]
+ * Handles user arguments input, training, and predicting of neural network
  */
 int main(int argc, char **argv) {
     int c;
@@ -203,10 +189,16 @@ int main(int argc, char **argv) {
     Node_t* node = trainNetwork(numHiddenLayers, nodes, trainTest, reqMae, graph);
     printf("\n-After Training-\nMMSE Training: %f\n",
             minMeanSquareError(trainTest[0].output, node->activatedVal, TRAINING_MAX));
-    printf("MMSE Testing: %f\n",
+    printf("MMSE Testing: %f\n\n",
             minMeanSquareError(trainTest[1].output, node->activatedVal, TESTING_MAX));
     ResultPrediction_t resPredict = predict(trainTest[1], node->biasWeights);
-    char** cm = confusionMatrix(trainTest[1].output, resPredict.prediction, TESTING_MAX);
+    int* cm = confusionMatrix(trainTest[1].output, resPredict.prediction, TESTING_MAX);
+
+    puts("-Confusion Matrix-");
+    printf("True Positive: %d\n", cm[0]);
+    printf("True Negative: %d\n", cm[1]);
+    printf("False Positive: %d\n", cm[2]);
+    printf("False Negative: %d\n", cm[3]);
 
     fclose(graph);
     fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
@@ -215,9 +207,7 @@ int main(int argc, char **argv) {
 
     gettimeofday(&tv2, NULL);
     printf ("\nTotal time = %f seconds\n",
-         (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
-         (double) (tv2.tv_sec - tv1.tv_sec));
-
+         (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 + (double) (tv2.tv_sec - tv1.tv_sec));
 
     /* Freeing used memory */
     for (int row = 0; row < DATA_ROWS; row++) {

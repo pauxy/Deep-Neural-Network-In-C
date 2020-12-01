@@ -12,17 +12,20 @@ double* matmuladd(double**, BiasWeights_t, double*, int, int);
 double sigmoid(double);
 
 /**
- * forwardPropagation(): [TODO:description]
- * @input: [TODO:description]
- * @biasWeights: [TODO:description]
- * @muladd: [TODO:description]
- * @activatedVal: [TODO:description]
- * @batchSize: [TODO:description]
- * @connections: [TODO:description]
+ * forwardPropagation(): Calculates the forward propagation for a node
+ * @input:               2D array of input from previous layer
+ * @biasWeights:         Struct of bias and weights where the firest element is the bias and the
+ *                       remaining elements are weights
+ * @muladd:              Array of the calculated sum of weights, inputs and biases using formula
+ * @activatedVal:        Sigmoided array of @muladd
+ * @batchSize:           Size of batch of input
+ * @connections:         Number of connections from the previous layer
  *
- * [TODO:description]
+ * Part 2a and 2b
+ * Does a matrix multiplication and addition of input and bias weights, and sigmoids it to create
+ * an activated value for one node
  *
- * Return: [TODO:description]
+ * Return: 1x90 array of activated values
  */
 double* forwardPropagation(double** input, BiasWeights_t biasWeights, double* muladd,
                            double* activatedVal, int batchSize, int connections) {
@@ -33,16 +36,16 @@ double* forwardPropagation(double** input, BiasWeights_t biasWeights, double* mu
     return activatedVal;
 }
 
+
 /**
- * matmuladd():  Calculates linear regression for each iteration
+ * matmuladd():  Calculates matrix multiplications add for each iteration
  *
  * @input:       2D array of input from previous layer
  * @biasWeights: Struct of bias and weights where the firest element is the bias and the
- * @muladd:      Array of the calculated sum of weights, inputs and biases using formula
  *               remaining elements are weights
+ * @muladd:      Array of the calculated sum of weights, inputs and biases using formula
  * @batchSize:   Size of batch
  * @connections: Number of connections perceptron will have
- *
  *
  * Part 2a
  * Calculates linear regression for each iteration based on the inputs, weights and biases where
@@ -70,7 +73,6 @@ double* matmuladd(double** input, BiasWeights_t biasWeights, double* muladd,
  * sigmoid():     Squashes input into double between 0-1
  *
  * @muladd:       Element of matmuladd()
- *
  *
  * Part 2b
  * Calculates the sigmoid activation function
