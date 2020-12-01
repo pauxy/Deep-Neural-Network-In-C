@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
     char* ofile = "graph.temp";
     int numHiddenLayers = 2;
     char nodesPerLayer[64] = "3,4";
-    int* nodes = NULL;
+    int* numNodes = NULL;
 
     /* Authored by Madeline Thong and Lim Chun Yu */
     while ((c = getopt(argc, argv, "m:i:g:o:l:n:h")) != -1) /* Uses getopt for command-line
@@ -150,13 +150,13 @@ int main(int argc, char **argv) {
     if (!(checkMaeArg(reqMae) && checkHiddenLayerArg(numHiddenLayers))) return 1;
 
     /* Checks if multi-level perceptron is required*/
-    if (numHiddenLayers != 0) nodes = checkNodes(nodesPerLayer, numHiddenLayers);
+    if (numHiddenLayers != 0) numNodes = checkNodes(nodesPerLayer, numHiddenLayers);
 
     /* Print number of hidden layers */
     puts("-Layers in feed-forward neural network-");
     puts("Input Layer: 9 node(s)");
     for (int i = 0; i < numHiddenLayers; i++) {
-        printf("Hidden Layer %d: %d node(s)\n", i + 1, nodes[i]);
+        printf("Hidden Layer %d: %d node(s)\n", i + 1, numNodes[i]);
     }
     puts("Output Layer: 1 node(s)\n");
 
@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
     InputOutput_t* trainTest = splitData(data);
 
     /* Train and test networks from inputs taken from user and dataset */
-    Layer_t* network = trainNetwork(numHiddenLayers, nodes, trainTest, reqMae, graph);
+    Layer_t* network = trainNetwork(numHiddenLayers, numNodes, trainTest, reqMae, graph);
     testNetwork(network, trainTest, numHiddenLayers + 1);
 
     /* Handles displaying graph using gnuplot */
@@ -184,7 +184,7 @@ int main(int argc, char **argv) {
 
     /* Prints time taken to run program */
     gettimeofday(&tv2, NULL); /* End timing */
-    printf ("\nTotal time = %f seconds\n",
+    printf("\nTotal time = %f seconds\n",
          (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 + (double) (tv2.tv_sec - tv1.tv_sec));
 
     /* Freeing used memory */
@@ -194,6 +194,17 @@ int main(int argc, char **argv) {
     free(trainTest[0].input);
     free(trainTest[0].output);
     free(trainTest);
+    free(numNodes);
+    for (int numLayers = 0; numLayers < numHiddenLayers + 1; numLayers++) {
+        Layer_t* currLayer = network + numLayers;
+        for (int numNodes = 0; numNodes < (network + numLayers)->numOfNodes; numNodes++) {
+            Node_t* currNode = (network + numLayers)->nodes + numNodes;
+            free(currNode->muladd);
+        }
+        free(currLayer->layerOutput);
+        free(currLayer->nodes);
+    }
+    free(network);
 
     return 0;
 }

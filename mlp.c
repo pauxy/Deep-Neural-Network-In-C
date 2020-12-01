@@ -123,7 +123,7 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
     InputOutput_t testingData = *(trainTest + 1);
 
     /* Allocate memory for layers */
-    Layer_t* layers = (Layer_t*)malloc(totalLayers * sizeof(Layer_t));
+    Layer_t* network = (Layer_t*)malloc(totalLayers * sizeof(Layer_t));
 
     /* Formatting number of layers and its nodes for generation*/
     int* connections = (int*)malloc(totalLayers * sizeof(int));
@@ -139,28 +139,31 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
             *(genNodes + i) = 1;
         }
 
-        Layer_t* prev = i == 0 ? NULL : (layers + i - 1); /* Stores previous layer in
+        Layer_t* prev = i == 0 ? NULL : (network + i - 1); /* Stores previous layer in
                                                              current layer
                                                              NULL if input layer is the
                                                              previous layer */
 
         /* Generates layers */
-        *(layers + i) = genLayer(genNodes[i], connections[i], prev);
+        *(network + i) = genLayer(genNodes[i], connections[i], prev);
 
         /* Allocates memory of activated values from each layer */
-        (layers + i)->layerOutput = (double**)malloc(connections[i] * sizeof(double*));
+        (network + i)->layerOutput = (double**)malloc(connections[i] * sizeof(double*));
     }
 
-    Layer_t* outputLayer = layers + numHiddenLayers; /* Gets pointer of output layer */
+    free(connections);
+    free(genNodes);
+
+    Layer_t* outputLayer = network + numHiddenLayers; /* Gets pointer of output layer */
 
     int t = 0;
     do {
         /* Loops through layers and calculates forward prop */
         for (int i = 0; i < totalLayers; i++) {
-            if (i == 0) layers->layerOutput = trainTestLayer(*layers, trainingData.input,
-                                                         layers->layerOutput, TRAINING_MAX);
-            else (layers + i)->layerOutput = trainTestLayer(*(layers + i), (layers + i)->prev->layerOutput ,
-                                                        (layers + i)->layerOutput, TRAINING_MAX);
+            if (i == 0) network->layerOutput = trainTestLayer(*network, trainingData.input,
+                                                         network->layerOutput, TRAINING_MAX);
+            else (network + i)->layerOutput = trainTestLayer(*(network + i), (network + i)->prev->layerOutput ,
+                                                        (network + i)->layerOutput, TRAINING_MAX);
         }
 
         if (t++ == 0) {
@@ -180,7 +183,7 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
 
         if (MAE_VAL > minMae) { /* Checks if MAE is miraculously meets the required MAE value */
             for (int i = 0; i < totalLayers; i++) { /* Loops through layers */
-                Layer_t* currentLayer = layers + numHiddenLayers - i; /* Get pointer of
+                Layer_t* currentLayer = network + numHiddenLayers - i; /* Get pointer of
                                                                          current layer */
                 for (int j = 0; j < currentLayer->numOfNodes; j++) { /* Loops through each node */
                     /* Set activation value to previous layer output */
@@ -201,7 +204,7 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
         }
     } while (MAE_VAL > minMae); /* Cheks if required MAE value is met */
 
-    return layers;
+    return network;
 }
 
 
