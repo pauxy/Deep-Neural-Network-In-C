@@ -30,7 +30,8 @@ double sigmoid(double);
 double* forwardPropagation(double** input, BiasWeights_t biasWeights, double* muladd,
                            double* activatedVal, int batchSize, int connections) {
     muladd = matmuladd(input, biasWeights, muladd, batchSize, connections);
-    for(int rows = 0; rows < batchSize; rows++) {
+    for(int rows = 0; rows < batchSize; rows++) { /* Iterates over batch size and does matrix
+                                                     multiplication and addition */
         *(activatedVal + rows) = sigmoid(*(muladd + rows));
     }
     return activatedVal;

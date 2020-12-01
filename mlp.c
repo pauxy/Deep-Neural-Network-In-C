@@ -46,11 +46,13 @@ BiasWeights_t initBiasWeights(int connections) {
  * Return: Data of one layer of nodes
  */
 Layer_t genLayer(int nodesPerLayer, int conn, Layer_t* prev) {
+    /* Initialises layer */
     Layer_t layer;
     layer.numOfNodes = nodesPerLayer;
     layer.nodes = (Node_t*)malloc(nodesPerLayer * sizeof(Node_t));
     layer.prev = prev;
 
+    /* Initialises node */
     for (int i = 0; i < nodesPerLayer; i++) {
         (layer.nodes + i)->connections = conn;
         (layer.nodes + i)->biasWeights = initBiasWeights((layer.nodes + i)->connections);
@@ -69,18 +71,22 @@ Layer_t genLayer(int nodesPerLayer, int conn, Layer_t* prev) {
  * @layerActivatedValOutput: The untransposed 2D matrix of sigmoided values from forwardprop
  *
  * Loops through nodes and calculates using the forward propagation algorithm
- * Transposes output matrix to batch size x number of nodes
+ * Transposes output matrix to connections x number of nodes
  *
- * Return: Transposed activation value from forwawrd propagation
+ * Return: Transposed activation value from forward propagation
  */
 double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOutput) {
-    for (int i = 0; i < layer.numOfNodes; i++) {
+    for (int i = 0; i < layer.numOfNodes; i++) { /* Loops through nodes in layer */
+        /* Runs forward propagation algorithm */
         (layer.nodes + i)->activatedVal =  forwardPropagation(input, (layer.nodes + i)->biasWeights,
                            (layer.nodes + i)->muladd, (layer.nodes + i)->activatedVal,
                            TRAINING_MAX, (layer.nodes + i)->connections);
-        *(layerActivatedValOutput + i) = (layer.nodes + i)->activatedVal;
+
+        *(layerActivatedValOutput + i) = (layer.nodes + i)->activatedVal; /* Stores activated values
+                                                                             in matrix */
     }
 
+    /* Transposes matrix from numOfNodes x conections to connections x numOfNodes */
     double** transposedAV = (double**)malloc(TRAINING_MAX * sizeof(double*));
     for (int row = 0; row < TRAINING_MAX; row++) {
         transposedAV[row] = (double*)malloc(layer.numOfNodes * sizeof(double));
@@ -89,7 +95,7 @@ double** trainLayer(Layer_t layer, double** input, double** layerActivatedValOut
         }
     }
 
-    return transposedAV;
+    return transposedAV; /* Tranposed matrix of activated values */
 }
 
 
@@ -118,31 +124,38 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
     /* Allocate memory for layers */
     Layer_t* layers = (Layer_t*)malloc(totalLayers * sizeof(Layer_t));
 
+    /* Formatting number of layers and its nodes for generation*/
     int* connections = (int*)malloc(totalLayers * sizeof(int));
     *connections = ATTR_COLUMNS;
-
     int* genNodes = (int*)malloc(totalLayers * sizeof(int));
-
     for (int i = 0; i < totalLayers; i++) {
-        // Generate int* of needed nodes and connections
+        /* Generate int* of needed nodes and connections */
         if (i != numHiddenLayers) {
-            *(connections + i + 1) = *(nodesPerLayer + i); // Append ATTR_COLUMNS to start of nodes pointer
+            *(connections + i + 1) = *(nodesPerLayer + i); /* Append ATTR_COLUMNS to start
+                                                              of nodes pointer */
             *(genNodes + i) = *(nodesPerLayer + i);
         } else {
             *(genNodes + i) = 1;
         }
 
-        Layer_t* prev = i == 0 ? NULL : (layers + i - 1);
+        Layer_t* prev = i == 0 ? NULL : (layers + i - 1); /* Stores previous layer in
+                                                             current layer
+                                                             NULL if input layer is the
+                                                             previous layer */
 
+        /* Generates layers */
         *(layers + i) = genLayer(genNodes[i], connections[i], prev);
+
+        /* Allocates memory of activated values from each layer */
         (layers + i)->layerOutput = (double**)malloc(connections[i] * sizeof(double*));
     }
 
-    Layer_t* outputLayer = layers + numHiddenLayers;
+    Layer_t* outputLayer = layers + numHiddenLayers; /* Gets pointer of output layer */
 
     int t = 0;
     do {
         if (t++ == 0) {
+            /* Gets MMSE before training */
             puts("-Before Training-");
             printf("MMSE Training: %f\n",
                     minMeanSquareError(trainingData.output, outputLayer->nodes->activatedVal,
@@ -152,6 +165,7 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
                                        TESTING_MAX));
         }
 
+        /* Loops through layers and calculates forward prop */
         for (int i = 0; i < totalLayers; i++) {
             if (i == 0) layers->layerOutput = trainLayer(*layers, trainingData.input,
                                                          layers->layerOutput);
@@ -161,25 +175,31 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
 
 
         MAE_VAL = meanAbsoluteValue(trainingData.output, outputLayer->nodes->activatedVal,
-                                    TRAINING_MAX);
-        fprintf(graph, "%i %lf \n", t, MAE_VAL);
+                                    TRAINING_MAX); /* Calculates MAE value */
+        fprintf(graph, "%i %lf \n", t, MAE_VAL); /* Plot MAE by epoch graph */
 
-        if (MAE_VAL > minMae) {
-            for (int i = 0; i < totalLayers; i++) {
-                Layer_t* currentLayer = layers + numHiddenLayers - i;
-                for (int j = 0; j < currentLayer->numOfNodes; j++) {
+        if (MAE_VAL > minMae) { /* Checks if MAE is miraculously meets the required MAE value */
+            for (int i = 0; i < totalLayers; i++) { /* Loops through layers */
+                Layer_t* currentLayer = layers + numHiddenLayers - i; /* Get pointer of
+                                                                         current layer */
+                for (int j = 0; j < currentLayer->numOfNodes; j++) { /* Loops through each node */
+                    /* Set activation value to previous layer output */
                     double** av = trainingData.input;
                     if (currentLayer->prev != NULL) av = currentLayer->prev->layerOutput;
 
-                    Node_t* currLayerNode = currentLayer->nodes + j;
+                    Node_t* currLayerNode = currentLayer->nodes + j; /* Get current node that is
+                                                                        being calculated */
+
+                    /* Runs backward propagation function */
                     currLayerNode->biasWeights =
                         backwardsPropagation(av, trainingData.output, currLayerNode->biasWeights,
-                                             outputLayer->nodes->activatedVal, currLayerNode->muladd,
-                                             TRAINING_MAX, currLayerNode->connections);
+                                             outputLayer->nodes->activatedVal,
+                                             currLayerNode->muladd, TRAINING_MAX,
+                                             currLayerNode->connections);
                 }
             }
         }
-    } while (MAE_VAL > minMae);
+    } while (MAE_VAL > minMae); /* Cheks if required MAE value is met */
 
     return layers;
 }
@@ -193,10 +213,12 @@ Layer_t* trainNetwork(int numHiddenLayers, int* nodesPerLayer, InputOutput_t* tr
  * Return:       Array of prediction
  */
 int* predict(InputOutput_t data, BiasWeights_t biasWeights) {
+    /* Predicts result from given testing input */
     double* result = (double*)malloc(TESTING_MAX * sizeof(double));
     result = forwardPropagation(data.input, biasWeights, result,
                                 result, TESTING_MAX, ATTR_COLUMNS);
 
+    /* Generated predicted output where 1 is true and 0 is no */
     int* prediction = (int*)malloc(TESTING_MAX * sizeof(int));
     for (int i = 0; i < TESTING_MAX; i++) {
         if ( *(result + i) > 0.5)
@@ -220,10 +242,14 @@ int* predict(InputOutput_t data, BiasWeights_t biasWeights) {
 void testNetwork(Layer_t* network, InputOutput_t* trainTest, int numLayers) {
     double* finalAV = (network + numLayers - 1)->nodes->activatedVal;
     BiasWeights_t finalBiasWeights = (network + numLayers - 1)->nodes->biasWeights;
+
+    /* Calculates MMSE after training */
     printf("\n-After Training-\nMMSE Training: %f\n",
             minMeanSquareError(trainTest[0].output, finalAV, TRAINING_MAX));
     printf("MMSE Testing: %f\n\n",
             minMeanSquareError(trainTest[1].output, finalAV, TESTING_MAX));
+
+    /* Gets confusion matrix after training */
     int* prediction = predict(trainTest[1], finalBiasWeights);
     int* cm = confusionMatrix(trainTest[1].output, prediction, TESTING_MAX);
 

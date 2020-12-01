@@ -54,7 +54,7 @@ double minMeanSquareError(int* expectedOutput, double* activatedVal, int batchSi
     double total = 0.0;
     for (int rows = 0; rows < batchSize; rows++) {
         total += pow(*(activatedVal + rows) -
-                expectedOutput[rows], 2.0); /* TODO:description */
+                expectedOutput[rows], 2.0); /* Calculating MMSE using formula */
     }
     return total / batchSize;
 }
@@ -78,10 +78,10 @@ double minMeanSquareError(int* expectedOutput, double* activatedVal, int batchSi
  */
 int* confusionMatrix(int* expectedOutput, int* res, int batchSize) {
     int* cm = (int*)malloc(4 * sizeof(int));
-    cm[0] = 0; // TP
-    cm[1] = 0; // TN
-    cm[2] = 0; // FP
-    cm[3] = 0; // FN
+    cm[0] = 0; /* TP */
+    cm[1] = 0; /* TN */
+    cm[2] = 0; /* FP */
+    cm[3] = 0; /* FN */
     for (int i = 0; i < batchSize; i++) {
         int origin = expectedOutput[i];
         if (origin == res[i]) {

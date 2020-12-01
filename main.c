@@ -74,9 +74,9 @@ int checkHiddenLayerArg(int numHiddenLayers) {
  */
 int* checkNodes(char* option, int numHiddenLayers) {
     int* nodes = (int*)malloc(numHiddenLayers * sizeof(int));
-    char* noNodes = strtok(option, ",");
+    char* noNodes = strtok(option, ","); /* Separates string with delimeter ',' */
     int i = 0;
-    while (noNodes != NULL && i < numHiddenLayers) {
+    while (noNodes != NULL && i < numHiddenLayers) { /* Loops through every element from string */
         nodes[i] = atoi(noNodes);
         if (nodes[i] < 1 || nodes[i] > 10) {
             fprintf(stderr, "Please choose a number of hidden layer nodes between 1-10\n");
@@ -102,7 +102,7 @@ int* checkNodes(char* option, int numHiddenLayers) {
 int main(int argc, char **argv) {
     int c;
     struct timeval  tv1, tv2;
-    gettimeofday(&tv1, NULL);
+    gettimeofday(&tv1, NULL); /* Start timing */
 
     double reqMae = 0.25;
     char* ngraph = "Mean Average Error";
@@ -112,38 +112,44 @@ int main(int argc, char **argv) {
     char nodesPerLayer[64] = "3,4";
     int* nodes = NULL;
 
-    while ((c = getopt(argc, argv, "m:i:g:o:l:n:h")) != -1)
-    switch (c) {
-        case 'm':
-            reqMae = atof(optarg);
-            break;
-        case 'i':
-            dfile = (char*)malloc(strlen(optarg) + 1);
-            strcpy(dfile, optarg);
-            break;
-        case 'g':
-            ngraph = (char*)malloc(strlen(optarg) + 1);
-            strcpy(ngraph, optarg);
-            break;
-        case 'o':
-            ofile = (char*)malloc(strlen(optarg) + 1);
-            strcpy(ofile, optarg);
-            break;
-        case 'l':
-            numHiddenLayers = atoi(optarg);
-            break;
-        case 'n':
-            strncpy(nodesPerLayer, optarg, sizeof(nodesPerLayer) - 1);
-            break;
-        case 'h':
-            help();
-            return 0;
-      default:
-            help();
-            return 1;
-    }
+    /* Authored by Madeline Thong and Lim Chun Yu */
+    while ((c = getopt(argc, argv, "m:i:g:o:l:n:h")) != -1) /* Uses getopt for command-line
+                                                               arguments */
+        switch (c) {
+            case 'm':
+                reqMae = atof(optarg);
+                break;
+            case 'i':
+                dfile = (char*)malloc(strlen(optarg) + 1);
+                strcpy(dfile, optarg);
+                break;
+            case 'g':
+                ngraph = (char*)malloc(strlen(optarg) + 1);
+                strcpy(ngraph, optarg);
+                break;
+            case 'o':
+                ofile = (char*)malloc(strlen(optarg) + 1);
+                strcpy(ofile, optarg);
+                break;
+            case 'l':
+                numHiddenLayers = atoi(optarg);
+                break;
+            case 'n':
+                strncpy(nodesPerLayer, optarg, sizeof(nodesPerLayer) - 1);
+                break;
+            case 'h':
+                help();
+                return 0;
+          default:
+                help();
+                return 1;
+        }
+    /* ~ end ~ */
 
+    /* Checks for valid user input */
     if (!(checkMaeArg(reqMae) && checkHiddenLayerArg(numHiddenLayers))) return 1;
+
+    /* Checks if multi-level perceptron is required*/
     if (numHiddenLayers != 0) nodes = checkNodes(nodesPerLayer, numHiddenLayers);
 
     /* Print number of hidden layers */
@@ -154,24 +160,30 @@ int main(int argc, char **argv) {
     }
     puts("Output Layer: 1 node(s)\n");
 
+    /* Prints required MAE to end training */
     puts("-Required MAE to end training-");
     printf("MAE: %lf\n\n", reqMae);
 
+    /* Generating gnuplot graph */
     FILE* graph = fopen(ofile, "w");
-    FILE * gnuplotPipe = popen("gnuplot -persistent > /dev/null 2>&1", "w");
+    FILE * gnuplotPipe = popen("gnuplot -persistent > /dev/null 2>&1", "w"); /* Runs gnuplot */
 
+    /* Gets attributes and results from dataset, and splits them into training and testing */
     InputOutput_t data = openData(dfile);
     InputOutput_t* trainTest = splitData(data);
 
+    /* Train and test networks from inputs taken from user and dataset */
     Layer_t* network = trainNetwork(numHiddenLayers, nodes, trainTest, reqMae, graph);
     testNetwork(network, trainTest, numHiddenLayers + 1);
 
+    /* Handles displaying graph using gnuplot */
     fclose(graph);
     fprintf(gnuplotPipe, "set title \"%s\"\n", ngraph);
     fprintf(gnuplotPipe, "plot '%s' with lines\n", ofile);
     fclose(gnuplotPipe);
 
-    gettimeofday(&tv2, NULL);
+    /* Prints time taken to run program */
+    gettimeofday(&tv2, NULL); /* End timing */
     printf ("\nTotal time = %f seconds\n",
          (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 + (double) (tv2.tv_sec - tv1.tv_sec));
 
